@@ -1,0 +1,34 @@
+== Structure ==
+- main page
+	- list all activities
+	- create new activity and set admin password
+- activy page
+	- admin page
+		- page participants
+		- page a particular participant
+		- select next poll to send
+		- add poll
+	- register as participant
+		- create your persona
+	- show all personas
+	- 
+
+=================
+
+on connect check if user has cookie
+when user sends username if username is in admins ask for pres password
+admin can decide what to send next as premade snippets
+all data is saved in the user's key
+{"type" : , "data" : , "from" : , "presentation" : ,"subtype" : result/vote/none}
+have an #execute div that will be cleaned
+types :
+	message
+	challenge
+	html
+	presence
+	vote
+	chat
+	show_in => select where to show it if not there show in default id
+
+save polls from website in an array attached to the presentation dict or read em from file
+save 
