@@ -90,6 +90,13 @@ class AdminHandler(tornado.web.RequestHandler):
         # self.set_secure_cookie("username", str(...))
         self.render("admin.html", checked_in = bool(cookie))
 
+class AppHandler(tornado.web.RequestHandler):
+    def get(self):
+        cookie = self.get_secure_cookie("username")
+        # self.set_secure_cookie("username", str(...))
+        self.render("app.html", checked_in = bool(cookie))
+
+
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
     cache = []
@@ -171,10 +178,11 @@ if __name__ == "__main__":
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
         (r"/admin/?", AdminHandler),
+        (r"/app/?", AppHandler),
         #(r""),
         #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),
-        (r"/", MainHandler),
+        (r"/", AdminHandler),
     ], **settings)
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()

@@ -3,30 +3,63 @@
 /* Services */
 // Demonstrate how to register services
 // In this case it is a simple value service.
-angular.module('bookly.services', ['ngCookies']).
+angular.module('presentation.services', ['ngCookies']).
   value('version', '0.1').
   factory('socket', function ($rootScope) {
-    var socket = io.connect();
-    return {
-      on: function (eventName, callback) {
-        socket.on(eventName, function () {
-          var args = arguments;
-          $rootScope.$apply(function () {
-            callback.apply(socket, args);
-          });
-        });
-      },
-      emit: function (eventName, data, callback) {
-        socket.emit(eventName, data, function () {
-          var args = arguments;
-          $rootScope.$apply(function () {
-            if (callback) {
-              callback.apply(socket, args);
-            }
-          });
+    var roomName = undefined;
+    var createSocket = function () {
+      var port = (location.port != 8888) ? ':'+location.port : '8888'
+      var socket = new WebSocket('ws://' + document.domain + "8888" + '/' + roomName + '/ws');
+      socket.onopen = function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          self.socket_handlers.onopen.apply(socket, args)
         })
       }
-    };
+
+      socket.onmessage = function (data) {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          self.socket_handlers.onmessage.apply(socket, args)
+        })
+      }
+
+      socket.onclose = function () {
+        setTimeout(function () {
+          createSocket();
+        }, 10000);
+
+        var args = arguments;
+        $rootScope.$apply(function () {
+          console.log("self : ", self);
+          console.log("self.socket_handlers : ", self.socket_handlers.onclose);
+          if (self.socket_handlers.onclose != undefined){
+            self.socket_handlers.onclose.apply(socket, args);
+          }
+        })
+      }
+      return socket
+    }
+
+    self.socket_handlers = {}
+
+    var methods = {
+      init: function(roomName){
+        roomName = roomName;
+        var socket = createSocket()
+      }
+      ,onopen: function (callback) {
+        self.socket_handlers.onopen = callback
+      }
+      , onmessage: function (callback) {
+        self.socket_handlers.onmessage = callback
+      }
+      , onclose: function (callback) {
+        self.socket_handlers.onclose = callback
+      }
+    }
+    return methods
+
   }).
   factory('AuthSession', function ($rootScope, $cookieStore, socket) {
     var modalCallback = function(){};
@@ -37,7 +70,7 @@ angular.module('bookly.services', ['ngCookies']).
                      { email: this.user.email });
     };
 
-    socket.on('user:login:result', function (data) {
+    socket.onmessage('user:login:result', function (data) {
         if(data.status === "success"){
           $cookieStore.put("BookliSession", data);
           modalCallback($cookieStore.get("BookliSession"));

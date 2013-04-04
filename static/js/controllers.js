@@ -2,56 +2,11 @@
 
 /* Controllers */
 
-function userCtrl(scope, socket){
-    scope.userlist = [
-      {name: "Frank", img: "/photo.png", updatesCount: 0}
-      , {name: "Audrey-Rose", img: "/photo.png", updatesCount: 0}];
-
-    socket.on('userlist', function (data) {
-        scope.userlist = data;
+function AdminCtrl($scope, socket){
+    console.log("in admin ctrl");
+    socket.onmessage('bookmarklist', function (data) {
+        $scope.classroom = data;
     });
-
-    socket.emit('userlist', function (data) {});
-}
-
-function bookmarkCtrl(scope, socket){
-    scope.bookmarkList = [
-        {name: "Ace Editor", img: "/photo.png", commentCount: 0}
-        ,{name: "", img: "/photo.png", commentCount: 0}];
-
-    socket.on('bookmarklist', function (data) {
-        scope.bookmarklist = data;
-    });
-}
-
-function addBookmarkCtrl($scope, socket){
-    $scope.newBookmark = {};
-    $scope.addBookmark = function(){
-        console.info("Adding : ", $scope.newBookmark);
-        socket.emit('bokkmark:add', $scope.newBookmark);
-        $scope.newBookmark = {};
-    }
-}
-
-function DashboardCtrl($scope, socket) {
-    userCtrl($scope, socket);
-    bookmarkCtrl($scope, socket);
-}
-
-function MainCtrl($scope, socket){
-    $scope.isLoggedIn = false;
-    $scope.currentUser = {};
-    $scope.$on("userLoggedIn", function(event, data){
-        $scope.currentUser.name = data.user.username;
-        $scope.currentUser.gravatarHash = data.gravatarHash;
-        $scope.isLoggedIn = true;
-    });
-
-    $scope.modal = {
-        "content": "Hello Modal",
-        "saved": false
-    }
-
 }
 
 // DashboardCtrl.$inject = [];
@@ -62,7 +17,7 @@ function signUpFormCtrl($scope, socket) {
                         ,username: this.username });
     };
 
-    socket.on('user:new:result', function (data) {
+    socket.onmessage('user:new:result', function (data) {
         $scope.newUser = data;
         $scope.$emit("userLoggedIn", data);
     });
