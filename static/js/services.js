@@ -9,6 +9,7 @@ angular.module('presentation.services', ['ngCookies']).
     var roomName = undefined;
     var createSocket = function () {
       var port = (location.port != 8888) ? ':'+location.port : ':8888'
+      //var server = 'ws://192.168.167.68' + port + '/' + window.roomName + '/ws';
       var server = 'ws://' + document.domain + port + '/' + window.roomName + '/ws';
       console.log("server : ", server);
       return new WebSocket(server);

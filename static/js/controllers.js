@@ -4,37 +4,62 @@
 
 function AdminCtrl($scope, socket){
     console.log("in admin ctrl", socket);
-    $scope.answers = [];
+    $scope.questions = {};
+    var nextQuestion = 0;
 
     $scope.addBlankAnswer = function(){
         console.log('add');
-        $scope.answers.push({"aid": $scope.answers.length+1, "answer":"Anwser", "isValid": false});
+        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer":"Answer", "isCorrect": false});
     }
 
-    $scope.addBlankAnswer();
+    function createNewQuestion(){
+        nextQuestion += 1;
+        $scope.question = { question: "", answer: undefined, qid: nextQuestion, answers:[] };
+        $scope.addBlankAnswer();
+    }
+    createNewQuestion();
 
     function sanitize(){
         var sanitizedAnswers = [];
-        $scope.answers.forEach(function(v){
+        $scope.question.answers.forEach(function(v){
             console.log("sanitize ... ", v);
-            if (v.Anwser !== "Anwser") {
+            if (v.answer !== "Answer") {
                 sanitizedAnswers.push(v);
             }
-
         });
+        console.log("sanitezed : ", sanitizedAnswers);
         return sanitizedAnswers;
     }
 
-    $scope.sendQuestion = function() {
+    $scope.addNewQuestion = function(){
+        console.log('addQuestion', $scope.question.answer);
         var results = sanitize();
-        socket.send(JSON.stringify({"type": "poll"
-                    ,"question": $scope.question
-                    ,"answers": results}));
+        $scope.questions[$scope.question.qid] = {"qid": $scope.question.qid
+                                  ,"type": "poll"
+                                  ,"question": $scope.question.question
+                                  ,"answer": $scope.question.answer
+                                  ,"answers": results};
+        console.log("hou", $scope.questions);
+        $scope.question = {}
+        return $scope.questions[$scope.questions.length-1];
+    }
+
+    $scope.setCurrentQuestionActive = function(qid){
+        $scope.question = $scope.questions[qid];
+    }
+    $scope.deleteQuestion = function(qid){
+        delete $scope.questions[qid];
+        socket.send(JSON.stringify({"type": "poll:delete", "qid": qid}));
+    }
+
+    $scope.sendQuestion = function() {
+        socket.send(JSON.stringify($scope.addNewQuestion()));
+        createNewQuestion();
     }
 }
 
 function MainCtrl($scope, socket){
-    console.log("in admin ctrl");
+    console.log("in Main ctrl");
 }
 
 // DashboardCtrl.$inject = [];
