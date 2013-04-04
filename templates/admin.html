@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    <div class="twelve columns">
+      <h2>Welcome to my mini presentation app</h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="twelve columns">
+      <h3>The Presentations</h3>
+
+      <!-- Grid Example -->
+ 
+      <div class="row presentation">
+        {% for presentation in  listing %}
+        <div class="six columns">
+            <p>{{ presentation[1]['name'] }}</p>
+        </div>
+        <div class="three columns">
+            <p><a href="/{{ presentation[0] }}/checkin">checkin then redirect to pres</a></p>
+        </div>
+        <div class="three columns">
+            <p><a href="/{{ presentation[0] }}/admin">for admin only need password</a></p>
+        </div>
+        {% end for %}
+      </div>
+
+      <div class="result"></div>
+      <hr>
+    </div>
+    <div class="row">
+        <div class="seven columns offset-by-five">
+            <div class="row">
+                <div class="five columns">
+                    <input type="text" class="twelve" id="pres_name" placeholder="Presentation name"/>
+                </div>
+                <div class="four columns">
+                    <input type="password" class="twelve"  id="pres_pass" placeholder="password" />
+                </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="create_presentation();return false;" class="small button">Create</a></p>
+                </div>
+            </div>
+            
+        </div>
+<script>
+function create_presentation() {
+    //alert("clicked")
+    if ($('#pres_name').val() != "") {
+        var info = { name: $("#pres_name").val(), password: $("#pres_pass").val() };
+        $.post('/', info, function(data) {
+          $('.presentation').prepend(data);
+        }).fail(function() { alert("error"); });
+    }
+}
+</script>
+    </div>
+
+
+  </div>
+
+  
+  <div class="row">
+    <div class="twelve columns">
+      <h3>Orbit</h3>
+      <div id="featured">
+        <img src="http://placehold.it/1200x250&text=Slide_1" alt="slide image">
+        <img src="http://placehold.it/1200x250&text=Slide_2" alt="slide image">
+        <img src="http://placehold.it/1200x250&text=Slide_3" alt="slide image">
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <div class="row">
+    <div class="twelve columns">
+      <h3>Reveal</h3>
+      <p><a href="#" data-reveal-id="exampleModal" class="button">Example modal</a></p>
+    </div>
+  </div>
+  
+  <div id="exampleModal" class="reveal-modal">
+    <h2>This is a modal.</h2>
+    <p>
+      Reveal makes these very easy to summon and dismiss. The close button is simple an anchor with a unicode 
+      character icon and a class of <code>close-reveal-modal</code>. Clicking anywhere outside the modal will 
+      also dismiss it.
+    </p>
+    <a class="close-reveal-modal">×</a>
+  </div>
+  {% end block %}
