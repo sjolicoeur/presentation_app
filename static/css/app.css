@@ -1,0 +1,40 @@
+/* app css stylesheet */
+
+body {
+  padding-top: 52px;
+}
+
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+.menu > li:nth-child(1):before {
+  content: "";
+  padding: 0;
+}
+
+.user-signup input.ng-invalid.ng-dirty {
+  background-color: #FA787E;
+}
+
+.user-signup input.ng-valid.ng-dirty {
+  background-color: #78FA89;
+}
+
+img#gravatarMenu {
+  height: 32px;
+  width: 32px;
+  margin-top: 4px;
+}

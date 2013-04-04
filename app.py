@@ -27,13 +27,14 @@ STATIC_ROOT = path(ROOT, 'static')
 # coded while listening to Bonobo
 class MainHandler(tornado.web.RequestHandler):
     #def prepare(self):
-    
+
     def get(self):
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentations = []
         data = []
         keys = r.keys("pres_*")
         host = self.request.host
+
         if keys :
             data = r.mget(keys)
         listing = [(x[0], ast.literal_eval(x[1])) for x in zip(keys,data) ]
@@ -87,6 +88,21 @@ class PresentationHandler(tornado.web.RequestHandler):
         else :
            raise tornado.web.HTTPError(404)
 
+class PresentationHUDHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        print "this is the controller "
+        print dir(self.request), "\n=======", self.request.host
+
+    def get(self, name,):
+        #if not entry: raise tornado.web.HTTPError(404)
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        presentation = r.get(name)
+        # print "name : ", name, "presentation : ", presentation
+        if presentation :
+            self.render("presentation_HUD.html", host=self.request.host, slug=name, presentation=presentation)
+        else :
+           raise tornado.web.HTTPError(404)
+
 ####
 from tornado.template import Loader
 
@@ -118,12 +134,20 @@ class PresentationAdminHandler(tornado.web.RequestHandler):
             self.render("presentation_admin.html", host=self.request.host, slug=name, presentation=presentation, poll=rendered_dummy_poll)
         
 
+
 class CheckinHandler(tornado.web.RequestHandler):
     def get(self, name,):
         cookie = self.get_secure_cookie("username")
         print "cookie is : " , cookie, bool(cookie)
         # self.set_secure_cookie("username", str(...))
         self.render("checkin.html", checked_in = bool(cookie))
+
+class AdminHandler(tornado.web.RequestHandler):
+    def get(self):
+        cookie = self.get_secure_cookie("username")
+        print "cookie is : " , cookie, bool(cookie)
+        # self.set_secure_cookie("username", str(...))
+        self.render("admin.html", checked_in = bool(cookie))
 
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
@@ -209,13 +233,14 @@ settings = {
 
 if __name__ == "__main__":
     application = tornado.web.Application([
-        
+
         (r"/(\w+)", PresentationHandler),
         (r"/(\w+)/admin", PresentationAdminHandler),
+        (r"/(\w+)/hud",PresentationHUDHandler),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
-        #(r""),
+        (r"/admin/?", AdminHandler),
         #(r""),
         #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),

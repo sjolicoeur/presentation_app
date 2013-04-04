@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+
+function newMessage() {
+    var message = $("#pres_name").val();
+    updater.socket.send(JSON.stringify(message));
+    //form.find("input[type=text]").val("").select();
+}
+
+var updater = {
+    socket: null,
+
+    start: function() {
+        var url = "ws://{{ host }}/{{ slug }}/ws";
+        if ("WebSocket" in window) {
+          updater.socket = new WebSocket(url);
+        } else {
+            updater.socket = new MozWebSocket(url);
+        }
+        updater.socket.onmessage = function(event) {
+          //updater.showMessage(JSON.parse(event.data));
+          updater.showMessage( event.data );
+        }
+    },
+
+    showMessage: function(message) {
+        console.log(message);
+        $("#inbox").append("<br>");
+        $("#inbox").append(message);
+
+        var existing = $("#m" + message.id);
+        if (existing.length > 0) return;
+        var node = $(message.html);
+        node.hide();
+        $("#inbox").append(node);
+        node.slideDown();
+    }
+};
+
+updater.start();
+</script>
+  <div class="row">
+    <div class="twelve columns">
+      <h2>Welcome to my mini presentation app</h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="twelve columns">
+      <h3>The Checkin</h3>
+
+      <!-- Grid Example -->
+ 
+      <div class="row presentation">
+        
+        <h2>Checked in ? "ws://{{ host }}/{{ slug }}/ws" </h2>
+      </div>
+
+      <div id="inbox">
+        [---------]
+      </div>
+      <hr>
+    </div>
+    <div class="row">
+        <!-- div class="seven columns offset-by-five">
+          <form id="test">
+            <div class="row">
+                <div class="five columns">
+                    <input type="text" name="pres_name" class="twelve" id="pres_name" placeholder="Presentation name"/>
+                </div>
+                <div class="four columns">
+                    <input type="password" name="pres_pass" class="twelve"  id="pres_pass" placeholder="password" />
+                </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="newMessage();return false;" class="small button">Create</a></p>
+                </div>
+            </div>
+            </form>
+        </div -->
+        <div class="seven columns offset-by-five">
+          <form id="chat_msg">
+            <div class="row">
+                <div class="three columns">
+                    <input type="text" name="username" class="twelve" id="username" placeholder="Presentation name"/>
+                </div>
+                <div class="six columns">
+                    <input type="text" name="msg" class="twelve"  id="msg" placeholder="your message" />
+                </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="send_chat_message();return false;" class="small button">Send</a></p>
+                </div>
+            </div>
+            </form>
+        </div>
+        <div class="seven columns offset-by-five">
+          <form id="polls">
+            <div class="row">
+                <div class="five columns">
+                    <input type="text" name="pres_name" class="twelve" id="pres_name" placeholder="Presentation name"/>
+                </div>
+                <div class="four columns">
+                    <input type="password" name="pres_pass" class="twelve"  id="pres_pass" placeholder="password" />
+                </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="newMessage();return false;" class="small button">Create</a></p>
+                </div>
+            </div>
+            </form>
+        </div>
+<script>
+
+function send_chat_message() {
+  if ($('#username').val() != "") {
+        var info = { type : "chat", username: $("#username").val(), message : $("#msg").val() };
+        // updater.socket.send(JSON.stringify(message));
+        updater.socket.send(JSON.stringify(info));
+    }
+    // return false
+}
+function answer_poll() {} 
+function create_presentation() {
+    //alert("clicked")
+    if ($('#pres_name').val() != "") {
+        var info = { name: $("#pres_name").val(), password: $("#pres_pass").val() };
+        $.post('/', info, function(data) {
+          $('.presentation').prepend(data);
+        }).fail(function() { alert("error"); });
+    }
+}
+</script>
+    </div>
+
+
+  </div>
+
+  
+  
+
+  {% end block %}

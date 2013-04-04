@@ -1,0 +1,38 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+  <div class="" ng-app>
+    <div class="twelve columns">
+      <h2>Welcome to my mini presentation app</h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="" ng-controller="AdminCtrl">
+    <div class="twelve columns">
+    </div>
+    <div class="">
+        <div class="seven columns offset-by-five">
+            <div class="">
+                <div class="five columns">
+                    <input type="text" class="twelve" id="pres_name" placeholder="Presentation name"/>
+                </div>
+                <div class="four columns">
+                    <input type="password" class="twelve"  id="pres_pass" placeholder="password" />
+                </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="create_presentation();return false;" class="small button">Create</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="">
+    <div class="twelve columns">
+      <h3>Reveal</h3>
+      <p><a href="#" data-reveal-id="exampleModal" class="button">Example modal</a></p>
+    </div>
+  </div>
+
+{% end block %}
