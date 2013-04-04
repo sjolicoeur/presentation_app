@@ -1,0 +1,9 @@
+<h2>{{ poll['question'] }}</h2>
+<form>
+	
+<ul>
+{% for answer in poll['answers'] %}
+	<li>{{ answer['aid'] }} | {{ answer['answer'] }}</li>
+{% end for %}
+</ul>
+</form>

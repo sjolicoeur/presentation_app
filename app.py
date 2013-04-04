@@ -16,7 +16,7 @@ import unicodedata
 import tornado.websocket
 import json
 import hashlib, uuid
-
+from tornado.escape import json_encode
 
 ###
 # Make filepaths relative to settings.
@@ -24,22 +24,35 @@ path = lambda root,*a: os.path.join(root, *a)
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_ROOT = path(ROOT, 'templates')
 STATIC_ROOT = path(ROOT, 'static')
-
+# coded while listening to Bonobo
 class MainHandler(tornado.web.RequestHandler):
     #def prepare(self):
 
     def get(self):
-        #self.write("Hello, world")
-        # put this in the pre
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentations = []
         data = []
         keys = r.keys("pres_*")
+        host = self.request.host
 
         if keys :
             data = r.mget(keys)
         listing = [(x[0], ast.literal_eval(x[1])) for x in zip(keys,data) ]
-        self.render("home.html", listing=listing)
+        rooms = [
+            {
+                "url" : "http://{}/{}".format(host, room[1]['slug']),
+                "ws-url" : "ws://{}/{}/ws".format(host, room[1]['slug']),
+                "name" : "{}".format(room[1]['name'])
+            } for room in listing
+        ]
+        #######
+        print self.request.headers
+        if self.request.headers.get('Content-Type', None) == "application/json" :
+            self.set_header("Content-Type", "application/json") 
+            self.write(json_encode(rooms))
+        else : 
+
+            self.render("home.html", listing=listing, rooms=rooms)
 
     def post(self):
         # put this in the pre
@@ -54,7 +67,7 @@ class MainHandler(tornado.web.RequestHandler):
         print self.get_argument("name")
         print self.get_argument("password", None)
         #self.write("{} - {}".format( self.get_argument("name"), self.get_argument("password", None)))
-        self.render("partial_presentation_listing.html", name=name, slug=slug)
+        self.render("partial_presentation_listing.html", name=name, slug=slug, host=self.request.host)
 
 class NameHandler(tornado.web.RequestHandler):
     def get(self, name,):
@@ -64,16 +77,62 @@ class PresentationHandler(tornado.web.RequestHandler):
     def prepare(self):
         print "this is the controller "
         print dir(self.request), "\n=======", self.request.host
+
+    def get(self, name,):
+        #if not entry: raise tornado.web.HTTPError(404)
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        presentation = r.get(name)
+        # print "name : ", name, "presentation : ", presentation
+        if presentation :
+            self.render("presentation.html", host=self.request.host, slug=name, presentation=presentation)
+        else :
+           raise tornado.web.HTTPError(404)
+
+class PresentationHUDHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        print "this is the controller "
+        print dir(self.request), "\n=======", self.request.host
+
+    def get(self, name,):
+        #if not entry: raise tornado.web.HTTPError(404)
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        presentation = r.get(name)
+        # print "name : ", name, "presentation : ", presentation
+        if presentation :
+            self.render("presentation_HUD.html", host=self.request.host, slug=name, presentation=presentation)
+        else :
+           raise tornado.web.HTTPError(404)
+
+####
+from tornado.template import Loader
+
+#self.loader = Loader(os.path.join(os.path.dirname(__file__), "templates"))
+####
+
+class PresentationAdminHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        print "this is the controller "
+        print dir(self.request), "\n=======", self.request.host
+
     def get(self, name,):
         #if not entry: raise tornado.web.HTTPError(404)
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentation = r.get(name)
         print "name : ", name, "presentation : ", presentation
         if presentation :
+            dummy_poll = {
+                "qid" : 1234 ,  
+                "question" : "what species are you?", 
+                "answers" : [
+                    {"aid" : 2, "answer" : "reptile"}, 
+                    {"aid" : 22, "answer" : "lemur"}, 
+                    {"aid" : 24, "answer" : "coder"},   ] }
+            self.loader = Loader(os.path.join(os.path.dirname(__file__), "templates"))
+            tmpl = self.loader.load("partial_poll.html")
 
-            self.render("presentation.html", host=self.request.host, slug=name, presentation=presentation)
-        #else :
-        #    raise tornado.web.HTTPError(404)
+            rendered_dummy_poll = tmpl.generate(poll = dummy_poll)
+            self.render("presentation_admin.html", host=self.request.host, slug=name, presentation=presentation, poll=rendered_dummy_poll)
+        
 
 
 class CheckinHandler(tornado.web.RequestHandler):
@@ -108,17 +167,18 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self, presentation):
-        print "opened on ", presentation
+        # print "opened on ", presentation
         ChatSocketHandler.waiters.add(self)
         cookie = self.get_secure_cookie("username")
-        print "cookie is : " , cookie, bool(cookie), self
-        if cookie :
-            self.write_message("Welcome back {}!".format(cookie))
-        else :
-            self.write_message("You are unregistered please fill out <input type=\"text\" placeholder=\"{}\"/>".format(str(self) ) )
+        # print "cookie is : " , cookie, bool(cookie), self
+        self.write_message("Welcome back {}!".format(cookie))
+        # if cookie :
+        #     self.write_message("Welcome back {}!".format(cookie))
+        # else :
+        #     self.write_message("You are unregistered please fill out <input type=\"text\" placeholder=\"{}\"/>".format(str(self) ) )
 
     def on_close(self):
-        print "closed on "
+        # print "closed on "
         ChatSocketHandler.waiters.remove(self)
 
     @classmethod
@@ -130,13 +190,14 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     @classmethod
     def send_updates(cls, chat):
         #logging.info("sending message to %d waiters", len(cls.waiters))
-        print "sending message to {} waiters".format(len(cls.waiters))
+        # print "sending message to {} waiters".format(len(cls.waiters))
         for waiter in cls.waiters:
             #print dir(waiter), " :: waiter func and attr"
             # only send to waiters that have the proper path
-            print "this waiter's path : ", waiter.request.path
+            # print "this waiter's path : ", waiter.request.path
             try:
                 waiter.write_message(chat)
+                # inpect chat message  
             except:
                 #logging.error("Error sending message", exc_info=True)
                 print "error sending message"
@@ -144,19 +205,27 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         # cgi.urlparse.parse_qs("a=3&a=2")
         #logging.info("got message %r", message)
-        print "message", message, dir(self),dir(self.request)
-        message = "--- {0} ---- {0} ---".format(message)
-        # parsed = tornado.escape.json_decode(message)
-        # chat = {
-        #     "id": str(uuid.uuid4()),
-        #     "body": parsed["body"],
-        #     }
-        # chat["html"] = self.render_string("message.html", message=chat)
+        # print "message", message, dir(self),dir(self.request)
+        parsed = tornado.escape.json_decode(message)
+        print "decoded message :: ", parsed
+        if parsed['type'] == "chat" :
+            ChatSocketHandler.update_cache(message)
+            ChatSocketHandler.send_updates(message)
+        else :
+            message = "--- {0} ---- {0} ---".format(message)
+            # inpect chat message  
+            # choose what to do with it 
+            # parsed = tornado.escape.json_decode(message)
+            # chat = {
+            #     "id": str(uuid.uuid4()),
+            #     "body": parsed["body"],
+            #     }
+            # chat["html"] = self.render_string("message.html", message=chat)
 
-        # ChatSocketHandler.update_cache(chat)
-        # ChatSocketHandler.send_updates(chat)
-        ChatSocketHandler.update_cache(message)
-        ChatSocketHandler.send_updates(message)
+            # ChatSocketHandler.update_cache(chat)
+            # ChatSocketHandler.send_updates(chat)
+            ChatSocketHandler.update_cache(message)
+            ChatSocketHandler.send_updates(message)
 
 
 # ajax returns {"target" : ..., "data" : ..., "type" : ...}
@@ -173,7 +242,8 @@ if __name__ == "__main__":
     application = tornado.web.Application([
 
         (r"/(\w+)", PresentationHandler),
-        #(r"/(\w+)/admin"),
+        (r"/(\w+)/admin", PresentationAdminHandler),
+        (r"/(\w+)/hud",PresentationHUDHandler),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
