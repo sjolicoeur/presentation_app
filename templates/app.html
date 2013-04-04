@@ -1,11 +1,11 @@
 {% extends "base_bootstrap.html" %}
 
 {% block content %}
-<div class="" ng-app="presentation">
+<div class="" ng-app="presentation" ng-controller='MainCtrl'>
 <div class="navbar navbar-fixed-top">
       <div class="navbar-inner")
         <div class="container">
-          <a class="brand " ng-cloak href="/admin">Admin</a>
+          <a class="brand " ng-cloak href="/app/admin">Admin</a>
 
           <ul class="nav nav-collapse collapse">
             <li ng-show="isLoggedIn">
@@ -21,4 +21,6 @@
             </li>
             </ul>
 </div>
+
+<div ng-view></div>
 {% end block %}

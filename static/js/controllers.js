@@ -9,6 +9,10 @@ function AdminCtrl($scope, socket){
     });
 }
 
+function MainCtrl($scope, socket){
+    console.log("in admin ctrl");
+}
+
 // DashboardCtrl.$inject = [];
 function signUpFormCtrl($scope, socket) {
     $scope.submit = function(){

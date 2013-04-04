@@ -150,7 +150,7 @@ class AdminHandler(tornado.web.RequestHandler):
         self.render("app.html", checked_in = bool(cookie))
 
 class AppHandler(tornado.web.RequestHandler):
-    def get(self):
+    def get(self, maybe=""):
         cookie = self.get_secure_cookie("username")
         # self.set_secure_cookie("username", str(...))
         self.render("app.html", checked_in = bool(cookie))
@@ -240,7 +240,7 @@ settings = {
 
 if __name__ == "__main__":
     application = tornado.web.Application([
-
+        (r"/app/?(\w+)?/?", AppHandler),
         (r"/(\w+)", PresentationHandler),
         (r"/(\w+)/admin", PresentationAdminHandler),
         (r"/(\w+)/hud",PresentationHUDHandler),
@@ -248,7 +248,6 @@ if __name__ == "__main__":
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
         (r"/admin/?", AdminHandler),
-        (r"/app/?", AppHandler),
         #(r""),
         #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),

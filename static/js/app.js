@@ -9,8 +9,9 @@ var app = angular.module('presentation'
     }
     ).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-    $routeProvider.when('/admin', {templateUrl: 'static/partial/admin.html', controller: AdminCtrl});
-    $routeProvider.when('/signup', {templateUrl: 'static/partial/signup.html', controller: signUpFormCtrl});
-    $routeProvider.otherwise({redirectTo: '/admin'});
+    $routeProvider.when('/app/home', {templateUrl: '/static/partial/admin.html', controller: AdminCtrl});
+    $routeProvider.when('/admin', {templateUrl: '/static/partial/admin.html', controller: AdminCtrl});
+    $routeProvider.when('/signup', {templateUrl: '/static/partial/signup.html', controller: signUpFormCtrl});
+    $routeProvider.otherwise({redirectTo: '/app/home'});
     $locationProvider.html5Mode(true);
   }]);
