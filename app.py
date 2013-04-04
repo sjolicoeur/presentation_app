@@ -27,7 +27,7 @@ STATIC_ROOT = path(ROOT, 'static')
 
 class MainHandler(tornado.web.RequestHandler):
     #def prepare(self):
-    
+
     def get(self):
         #self.write("Hello, world")
         # put this in the pre
@@ -35,7 +35,7 @@ class MainHandler(tornado.web.RequestHandler):
         presentations = []
         data = []
         keys = r.keys("pres_*")
-    
+
         if keys :
             data = r.mget(keys)
         listing = [(x[0], ast.literal_eval(x[1])) for x in zip(keys,data) ]
@@ -74,7 +74,7 @@ class PresentationHandler(tornado.web.RequestHandler):
             self.render("presentation.html", host=self.request.host, slug=name, presentation=presentation)
         #else :
         #    raise tornado.web.HTTPError(404)
-        
+
 
 class CheckinHandler(tornado.web.RequestHandler):
     def get(self, name,):
@@ -82,6 +82,13 @@ class CheckinHandler(tornado.web.RequestHandler):
         print "cookie is : " , cookie, bool(cookie)
         # self.set_secure_cookie("username", str(...))
         self.render("checkin.html", checked_in = bool(cookie))
+
+class AdminHandler(tornado.web.RequestHandler):
+    def get(self):
+        cookie = self.get_secure_cookie("username")
+        print "cookie is : " , cookie, bool(cookie)
+        # self.set_secure_cookie("username", str(...))
+        self.render("admin.html", checked_in = bool(cookie))
 
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
@@ -157,13 +164,13 @@ settings = {
 
 if __name__ == "__main__":
     application = tornado.web.Application([
-        
+
         (r"/(\w+)", PresentationHandler),
         #(r"/(\w+)/admin"),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
-        #(r""),
+        (r"/admin/?", AdminHandler),
         #(r""),
         #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),
