@@ -1,0 +1,42 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+<div class="" ng-app="presentation" ng-controller='MainCtrl'>
+
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="brand" href="/{{roomname}}/">{{roomname}}</a>
+
+        <ul class="nav nav-collapse collapse">
+          <li ng-show="isLoggedIn">
+            <img id="gravatarMenu" ng-src="http://www.gravatar.com/avatar/((currentUser.gravatarHash))">
+          </li>
+          <li>
+            <a href="#"> (( currentUser.name ))</a>
+          </li>
+          <li>
+            <a href="/{{roomname}}/admin">Admin</a>
+          </li>
+          <li class="divider"></li>
+          <li>
+            <a href="/{{roomname}}/dashboard">Dashboard</a>
+          </li>
+          <li>
+            <!-- <a href="#" bs-modal="'/partials/login'" ng-controller="loginCtrl">Login</a> -->
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="ng-view" ng-view></div>
+</div>
+{% end block %}
+
+{% block javascript %}
+  <script type="text/javascript">
+    console.log("{{roomname}}");
+    window["roomName"] = "{{roomname}}";
+  </script>
+{% end block %}

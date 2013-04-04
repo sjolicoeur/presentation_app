@@ -48,9 +48,9 @@ class MainHandler(tornado.web.RequestHandler):
         #######
         print self.request.headers
         if self.request.headers.get('Content-Type', None) == "application/json" :
-            self.set_header("Content-Type", "application/json") 
+            self.set_header("Content-Type", "application/json")
             self.write(json_encode(rooms))
-        else : 
+        else :
 
             self.render("home.html", listing=listing, rooms=rooms)
 
@@ -115,18 +115,18 @@ class PresentationAdminHandler(tornado.web.RequestHandler):
         print "name : ", name, "presentation : ", presentation
         if presentation :
             dummy_poll = {
-                "qid" : 1234 ,  
-                "question" : "what species are you?", 
+                "qid" : 1234 ,
+                "question" : "what species are you?",
                 "answers" : [
-                    {"aid" : 2, "answer" : "reptile"}, 
-                    {"aid" : 22, "answer" : "lemur"}, 
+                    {"aid" : 2, "answer" : "reptile"},
+                    {"aid" : 22, "answer" : "lemur"},
                     {"aid" : 24, "answer" : "coder"},   ] }
             self.loader = Loader(os.path.join(os.path.dirname(__file__), "templates"))
             tmpl = self.loader.load("partial_poll.html")
 
             rendered_dummy_poll = tmpl.generate(poll = dummy_poll)
             self.render("presentation_admin.html", host=self.request.host, slug=name, presentation=presentation, poll=rendered_dummy_poll)
-        
+
 
 
 class CheckinHandler(tornado.web.RequestHandler):
@@ -140,7 +140,15 @@ class AdminHandler(tornado.web.RequestHandler):
     def get(self):
         cookie = self.get_secure_cookie("username")
         print "cookie is : " , cookie, bool(cookie)
-        self.render("admin.html", checked_in = bool(cookie))
+        # self.set_secure_cookie("username", str(...))
+        self.render("app.html", checked_in = bool(cookie))
+
+class AppHandler(tornado.web.RequestHandler):
+    def get(self, name="", section=""):
+        cookie = self.get_secure_cookie("username")
+        # self.set_secure_cookie("username", str(...))
+        self.render("app.html", roomname=name, checked_in = bool(cookie))
+
 
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = set()
@@ -179,7 +187,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
             # only send to waiters that have the proper path
             try:
                 waiter.write_message(chat)
-                # inpect chat message  
+                # inpect chat message
             except:
                 #logging.error("Error sending message", exc_info=True)
                 print "error sending message"
@@ -258,16 +266,14 @@ settings = {
 
 if __name__ == "__main__":
     application = tornado.web.Application([
-
-        (r"/(\w+)", PresentationHandler),
-        (r"/(\w+)/admin", PresentationAdminHandler),
+        (r"/(\w+)/app/?(\w+)?", AppHandler),
+        # (r"/(\w+)/(\w+)?", AppHandler),
+        (r"/(\w+)/admin/?", PresentationAdminHandler),
+        (r"/(\w+)/?", AppHandler),
         (r"/(\w+)/hud",PresentationHUDHandler),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
-        (r"/admin/?", AdminHandler),
-        #(r""),
-        #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),
         (r"/", MainHandler),
     ], **settings)

@@ -4,6 +4,10 @@ body {
   padding-top: 52px;
 }
 
+#ng-view {
+  padding: 40px;
+}
+
 .menu {
   list-style: none;
   border-bottom: 0.1em solid black;
