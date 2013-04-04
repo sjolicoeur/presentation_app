@@ -174,6 +174,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     @classmethod
     def send_updates(cls, chat):
         #logging.info("sending message to %d waiters", len(cls.waiters))
+        print "waiteers ::", cls.waiters
         for waiter in cls.waiters:
             # only send to waiters that have the proper path
             try:
@@ -185,7 +186,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
     def extract_slug(self, url):
         import re 
-        found_slug = re.match(r".+/film/([\w|-|_]+)/?$", url)
+        found_slug = re.match(r".+/film/([\w|\-|\_]+)/?$", url)
         if found_slug:
             print found_slug.groups(), " returning :=>", found_slug.group(1)
             return found_slug.group(1)
@@ -218,18 +219,18 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         if parsed['type'] == "chat" :
             ChatSocketHandler.update_cache(message)
             ChatSocketHandler.send_updates(message)
-        if parsed['type'] == "init_film" :
+        elif parsed['type'] == "init_film" :
             slug = self.extract_slug(parsed["film_url"])
             print "extracted slug is ::: ", slug
             if slug :
                 extra_info = self.get_info_from_nfb_api(slug)
-                message = {"type" : "film" , "start" : 0 , "film_url" : parsed["film_url"]}
+                message = {"type" : "film" , "start" : parsed["start"] , "film_url" : parsed["film_url"]}
                 message.update(extra_info)
                 print "sending :::", message
-                ChatSocketHandler.update_cache(message)
+                # ChatSocketHandler.update_cache(message)
                 ChatSocketHandler.send_updates(message)
         else :
-            message = "--- {0} ---- {0} ---".format(message)
+            # message = "--- {0} ---- {0} ---".format(message)
             # inpect chat message  
             # choose what to do with it 
             # parsed = tornado.escape.json_decode(message)

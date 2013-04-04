@@ -30,12 +30,12 @@ var updater = {
         $("#inbox").append("<br>");
         $("#inbox").append(message);
 
-        var existing = $("#m" + message.id);
-        if (existing.length > 0) return;
-        var node = $(message.html);
-        node.hide();
-        $("#inbox").append(node);
-        node.slideDown();
+        // var existing = $("#m" + message.id);
+        // if (existing.length > 0) return;
+        // var node = $(message.html);
+        // node.hide();
+        // $("#inbox").append(node);
+        // node.slideDown();
     }
 };
 
@@ -96,14 +96,29 @@ updater.start();
             </form>
         </div>
         <div class="seven columns offset-by-five">
-          <form id="chat_msg">
+          <form id="film_send">
             <div class="row">
-                <div class="nine columns">
+                <div class="seven columns">
                     <input type="text" name="film_url" class="twelve" id="film_url" placeholder="film url on beta"/>
                 </div>
-               
+               <div class="two columns">
+                    <input type="text" name="start" class="twelve" id="start" placeholder="0" value="0"/>
+                </div>
                 <div class="three columns">
                     <p><a href="#" onclick="send_films();return false;" class="small button">Send film</a></p>
+                </div>
+            </div>
+            </form>
+        </div>
+        <div class="seven columns offset-by-five">
+          <form id="img_send">
+            <div class="row">
+                <div class="nine columns">
+                    <input type="text" name="img_url" class="twelve" id="img_url" placeholder="image url"/>
+                </div>
+           
+                <div class="three columns">
+                    <p><a href="#" onclick="send_image();return false;" class="small button">Send image</a></p>
                 </div>
             </div>
             </form>
@@ -141,12 +156,21 @@ function send_films() {
   // {type:"init_film", "film_url" : "http://beta.nfb.ca/film/king_of_the_hill/"}
   // updater.socket.send( JSON.stringify({type:"init_film", "film_url" : "http://beta.nfb.ca/film/king_of_the_hill/"}))
   if ($('#film_url').val() != "") {
-        var info =  {type:"init_film", "film_url" : $('#film_url').val() };
+        var info =  {type:"init_film", "film_url" : $('#film_url').val() , start : $('#start').val()};
         // { type : "chat", username: $("#username").val(), message : $("#msg").val() };
         // updater.socket.send(JSON.stringify(message));
         updater.socket.send(JSON.stringify(info));
     }
 
+}
+
+function send_image() {
+  if ($('#img_url').val() != "") {
+        var info =  {type:"image", "url" : $('#img_url').val() };
+        // { type : "chat", username: $("#username").val(), message : $("#msg").val() };
+        // updater.socket.send(JSON.stringify(message));
+        updater.socket.send(JSON.stringify(info));
+    }
 }
 
 function answer_poll() {} 
