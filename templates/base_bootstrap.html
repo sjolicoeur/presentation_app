@@ -20,6 +20,7 @@
 
   <!-- Included CSS Files (Compressed) -->
   <link rel="stylesheet" href="{{ static_url('bootstrap/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ static_url('css/app.css') }}">
 
   <!-- IE Fix for HTML5 Tags -->
   <!--[if lt IE 9]>
@@ -159,12 +160,16 @@
 
 {% end block %}
 
+{% block javascript %}
+{% end block %}
+
   <!-- Included JS Files (Compressed) -->
   <script src="{{ static_url('js/lib/jquery-1.9.1.min.js') }}"></script>
   <script src="{{ static_url('bootstrap/js/bootstrap.min.js') }}"></script>
   <script src="{{ static_url('js/lib/angular/angular.min.js') }}"></script>
   <script src="{{ static_url('js/lib/angular/angular-cookies.min.js')}}"></script>
   <script src="{{ static_url('js/lib/angular-strap.min.js') }}"></script>
+
   <!-- Initialize JS Plugins -->
   <script src="{{ static_url('js/app.js') }}"></script>
   <script src="{{ static_url('js/controllers.js') }}"></script>

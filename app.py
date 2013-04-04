@@ -150,10 +150,10 @@ class AdminHandler(tornado.web.RequestHandler):
         self.render("app.html", checked_in = bool(cookie))
 
 class AppHandler(tornado.web.RequestHandler):
-    def get(self, maybe=""):
+    def get(self, name="", section=""):
         cookie = self.get_secure_cookie("username")
         # self.set_secure_cookie("username", str(...))
-        self.render("app.html", checked_in = bool(cookie))
+        self.render("app.html", roomname=name, checked_in = bool(cookie))
 
 
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
@@ -240,18 +240,16 @@ settings = {
 
 if __name__ == "__main__":
     application = tornado.web.Application([
-        (r"/app/?(\w+)?/?", AppHandler),
-        (r"/(\w+)", PresentationHandler),
-        (r"/(\w+)/admin", PresentationAdminHandler),
+        (r"/(\w+)/app/?(\w+)?", AppHandler),
+        (r"/(\w+)/(\w+)?", AppHandler),
+        #(r"/(\w+)/admin/?(\w+)?", PresentationAdminHandler),
+        (r"/(\w+)/?", AppHandler),
         (r"/(\w+)/hud",PresentationHUDHandler),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),
         (r"/(\w+)/checkin", CheckinHandler),
-        (r"/admin/?", AdminHandler),
-        #(r""),
-        #(r""),
         (r"/static/(.*)", tornado.web.StaticFileHandler),
-        (r"/", AdminHandler),
+        (r"/", MainHandler),
     ], **settings)
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
