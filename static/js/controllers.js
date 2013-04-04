@@ -3,10 +3,34 @@
 /* Controllers */
 
 function AdminCtrl($scope, socket){
-    console.log("in admin ctrl");
-    socket.onmessage('bookmarklist', function (data) {
-        $scope.classroom = data;
-    });
+    console.log("in admin ctrl", socket);
+    $scope.answers = [];
+
+    $scope.addBlankAnswer = function(){
+        console.log('add');
+        $scope.answers.push({"aid": $scope.answers.length+1, "answer":"Anwser", "isValid": false});
+    }
+
+    $scope.addBlankAnswer();
+
+    function sanitize(){
+        var sanitizedAnswers = [];
+        $scope.answers.forEach(function(v){
+            console.log("sanitize ... ", v);
+            if (v.Anwser !== "Anwser") {
+                sanitizedAnswers.push(v);
+            }
+
+        });
+        return sanitizedAnswers;
+    }
+
+    $scope.sendQuestion = function() {
+        var results = sanitize();
+        socket.send(JSON.stringify({"type": "poll"
+                    ,"question": $scope.question
+                    ,"answers": results}));
+    }
 }
 
 function MainCtrl($scope, socket){

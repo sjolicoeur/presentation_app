@@ -1,28 +1,24 @@
 <div id="admin" ng-controller="AdminCtrl">
-  <div class="">
-    <div class="twelve columns">
-      <h2>Welcome to my mini presentation app</h2>
+  <div class="row">
+    <div class="offset1 span4">
+    <h2> Create Poll </h2>
       <hr />
     </div>
   </div>
 
-  <div class="row">
-    <div class="span10">
-    </div>
     <div class="row">
-        <div class="span10">
+        <div class="offset1 span4">
             <div class="">
-                <div class="five columns">
-                    <input type="text" class="twelve" id="pres_name" placeholder="Presentation name"/>
-                </div>
-                <div class="four columns">
-                    <input type="password" class="twelve"  id="pres_pass" placeholder="password" />
-                </div>
-                <div class="three columns">
-                    <p><button href="#" onclick="create_presentation();return false;" class="small button">Create</a></p>
-                </div>
+              <input ng-model="questions" type="text" id="pres_name" placeholder="Question" />
+              <br />
+              <ul>
+                <li ng-repeat="answer in answers">
+                  ((answer.id)). <input type="radio" name="(( anwser.aid ))" group="answer">  <input type="text" id="pres_name_((answer.aid))" placeholder="(( answer.answer ))" value="(( answer.anwser ))" ng-model="answer.answer" />
+                </li>
+                <button ng-click="addBlankAnswer()">Add Answer</button>
+              </ul>
+              <button ng-click='sendQuestion()'>Create</button>
             </div>
         </div>
     </div>
-  </div>
 </div>
