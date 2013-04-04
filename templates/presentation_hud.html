@@ -26,6 +26,7 @@ var updater = {
     },
 
     showMessage: function(message) {
+        // this is the HUD so only show chat messages destined for the HUD
         console.log(message);
         $("#inbox").append("<br>");
         $("#inbox").append(message);

@@ -96,6 +96,19 @@ updater.start();
             </form>
         </div>
         <div class="seven columns offset-by-five">
+          <form id="chat_msg">
+            <div class="row">
+                <div class="nine columns">
+                    <input type="text" name="film_url" class="twelve" id="film_url" placeholder="film url on beta"/>
+                </div>
+               
+                <div class="three columns">
+                    <p><a href="#" onclick="send_films();return false;" class="small button">Send film</a></p>
+                </div>
+            </div>
+            </form>
+        </div>
+        <div class="seven columns offset-by-five">
           <form id="polls">
             <div class="row">
                 <div class="five columns">
@@ -124,6 +137,18 @@ function send_chat_message() {
     }
     // return false
 }
+function send_films() {
+  // {type:"init_film", "film_url" : "http://beta.nfb.ca/film/king_of_the_hill/"}
+  // updater.socket.send( JSON.stringify({type:"init_film", "film_url" : "http://beta.nfb.ca/film/king_of_the_hill/"}))
+  if ($('#film_url').val() != "") {
+        var info =  {type:"init_film", "film_url" : $('#film_url').val() };
+        // { type : "chat", username: $("#username").val(), message : $("#msg").val() };
+        // updater.socket.send(JSON.stringify(message));
+        updater.socket.send(JSON.stringify(info));
+    }
+
+}
+
 function answer_poll() {} 
 function create_presentation() {
     //alert("clicked")

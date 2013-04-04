@@ -17,6 +17,7 @@ import tornado.websocket
 import json
 import hashlib, uuid
 from tornado.escape import json_encode
+from tornado.template import Loader
 
 ###
 # Make filepaths relative to settings.
@@ -25,9 +26,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_ROOT = path(ROOT, 'templates')
 STATIC_ROOT = path(ROOT, 'static')
 # coded while listening to Bonobo
-class MainHandler(tornado.web.RequestHandler):
-    #def prepare(self):
 
+class MainHandler(tornado.web.RequestHandler):
     def get(self):
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentations = []
@@ -66,7 +66,6 @@ class MainHandler(tornado.web.RequestHandler):
         ###
         print self.get_argument("name")
         print self.get_argument("password", None)
-        #self.write("{} - {}".format( self.get_argument("name"), self.get_argument("password", None)))
         self.render("partial_presentation_listing.html", name=name, slug=slug, host=self.request.host)
 
 class NameHandler(tornado.web.RequestHandler):
@@ -79,7 +78,6 @@ class PresentationHandler(tornado.web.RequestHandler):
         print dir(self.request), "\n=======", self.request.host
 
     def get(self, name,):
-        #if not entry: raise tornado.web.HTTPError(404)
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentation = r.get(name)
         # print "name : ", name, "presentation : ", presentation
@@ -94,7 +92,6 @@ class PresentationHUDHandler(tornado.web.RequestHandler):
         print dir(self.request), "\n=======", self.request.host
 
     def get(self, name,):
-        #if not entry: raise tornado.web.HTTPError(404)
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         presentation = r.get(name)
         # print "name : ", name, "presentation : ", presentation
@@ -104,9 +101,6 @@ class PresentationHUDHandler(tornado.web.RequestHandler):
            raise tornado.web.HTTPError(404)
 
 ####
-from tornado.template import Loader
-
-#self.loader = Loader(os.path.join(os.path.dirname(__file__), "templates"))
 ####
 
 class PresentationAdminHandler(tornado.web.RequestHandler):
@@ -146,7 +140,6 @@ class AdminHandler(tornado.web.RequestHandler):
     def get(self):
         cookie = self.get_secure_cookie("username")
         print "cookie is : " , cookie, bool(cookie)
-        # self.set_secure_cookie("username", str(...))
         self.render("admin.html", checked_in = bool(cookie))
 
 class ChatSocketHandler(tornado.websocket.WebSocketHandler):
@@ -163,13 +156,11 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         # print "opened on ", presentation
         ChatSocketHandler.waiters.add(self)
         cookie = self.get_secure_cookie("username")
-        # print "cookie is : " , cookie, bool(cookie), self
-        self.write_message("Welcome back {}!".format(cookie))
-        # if cookie :
-        #     self.write_message("Welcome back {}!".format(cookie))
-        # else :
-        #     self.write_message("You are unregistered please fill out <input type=\"text\" placeholder=\"{}\"/>".format(str(self) ) )
-
+        #self.write_message("Welcome back {}!".format(cookie))
+        welcom_message = {"type" : "chat" , "message" : "Welcome to room : {}".format(presentation), "username" : "SYSTEM"}
+        #self.set_header("Content-Type", "application/json") 
+        self.write_message(json_encode(welcom_message))
+        
     def on_close(self):
         # print "closed on "
         ChatSocketHandler.waiters.remove(self)
@@ -183,11 +174,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     @classmethod
     def send_updates(cls, chat):
         #logging.info("sending message to %d waiters", len(cls.waiters))
-        # print "sending message to {} waiters".format(len(cls.waiters))
         for waiter in cls.waiters:
-            #print dir(waiter), " :: waiter func and attr"
             # only send to waiters that have the proper path
-            # print "this waiter's path : ", waiter.request.path
             try:
                 waiter.write_message(chat)
                 # inpect chat message  
@@ -195,15 +183,51 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
                 #logging.error("Error sending message", exc_info=True)
                 print "error sending message"
 
+    def extract_slug(self, url):
+        import re 
+        found_slug = re.match(r".+/film/([\w|-|_]+)/?$", url)
+        if found_slug:
+            print found_slug.groups(), " returning :=>", found_slug.group(1)
+            return found_slug.group(1)
+        print "slug not found for ", url
+        return None
+
+    def get_info_from_nfb_api(self, slug):
+        import requests
+        print "slug :::", slug
+        url ="http://beta.nfb.ca/api/v2/json/film/get_info/{}/?api_key=beta".format(slug)
+        headers = {'content-type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
+        r = requests.get(url,  headers=headers)
+        print "getting url : ", url 
+        print r
+        result_json = r.json()
+        title = result_json["data"]["film"]["title"]
+        mobile_url = result_json["data"]["film"]["mobile_url"]
+        description = result_json["data"]["film"]["description"]
+        director = result_json["data"]["film"]["director"]
+        return {
+            "title" : title,
+            "url" : mobile_url,
+            "description" : description,
+            "director" : director
+        }
+
     def on_message(self, message):
-        # cgi.urlparse.parse_qs("a=3&a=2")
-        #logging.info("got message %r", message)
-        # print "message", message, dir(self),dir(self.request)
         parsed = tornado.escape.json_decode(message)
         print "decoded message :: ", parsed
         if parsed['type'] == "chat" :
             ChatSocketHandler.update_cache(message)
             ChatSocketHandler.send_updates(message)
+        if parsed['type'] == "init_film" :
+            slug = self.extract_slug(parsed["film_url"])
+            print "extracted slug is ::: ", slug
+            if slug :
+                extra_info = self.get_info_from_nfb_api(slug)
+                message = {"type" : "film" , "start" : 0 , "film_url" : parsed["film_url"]}
+                message.update(extra_info)
+                print "sending :::", message
+                ChatSocketHandler.update_cache(message)
+                ChatSocketHandler.send_updates(message)
         else :
             message = "--- {0} ---- {0} ---".format(message)
             # inpect chat message  
