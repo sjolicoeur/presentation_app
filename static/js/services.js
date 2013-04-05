@@ -8,26 +8,38 @@ angular.module('presentation.services', ['ngCookies']).
   factory('socket', function ($rootScope) {
     var roomName = undefined;
     var createSocket = function () {
-      var port = (location.port != 8888) ? ':'+location.port : '8888'
-      var socket = new WebSocket('ws://' + document.domain + "8888" + '/' + roomName + '/ws');
+      var port = (location.port != 8888) ? ':'+location.port : ':8888'
+      var server = 'ws://192.168.167.147' + port + '/' + window.roomName + '/ws';
+      //var server = 'ws://' + document.domain + port + '/' + window.roomName + '/ws';
+      console.log("server : ", server);
+      return new WebSocket(server);
+    }
+
+      var socket = createSocket()
       socket.onopen = function () {
         var args = arguments;
         $rootScope.$apply(function () {
-          self.socket_handlers.onopen.apply(socket, args)
+          if (self.socket_handlers.onclose != undefined){
+            self.socket_handlers.onopen.apply(socket, args)
+          }
         })
       }
 
       socket.onmessage = function (data) {
         var args = arguments;
         $rootScope.$apply(function () {
-          self.socket_handlers.onmessage.apply(socket, args)
+          if (self.socket_handlers.onclose != undefined){
+            self.socket_handlers.onmessage.apply(socket, args)
+          }
         })
       }
 
       socket.onclose = function () {
         setTimeout(function () {
-          createSocket();
+          socket = createSocket();
         }, 10000);
+
+        console.log("oups connection close");
 
         var args = arguments;
         $rootScope.$apply(function () {
@@ -37,60 +49,27 @@ angular.module('presentation.services', ['ngCookies']).
             self.socket_handlers.onclose.apply(socket, args);
           }
         })
-      }
       return socket
     }
 
     self.socket_handlers = {}
 
-    var methods = {
-      init: function(roomName){
-        roomName = roomName;
-        var socket = createSocket()
-      }
-      ,onopen: function (callback) {
+    return {
+      onopen: function (callback) {
         self.socket_handlers.onopen = callback
       }
       , onmessage: function (callback) {
         self.socket_handlers.onmessage = callback
       }
+      , send: function (data, callback) {
+        console.log("send called", data);
+        console.log("socket : ", socket)
+        socket.send(data);
+        // self.socket_handlers.send = callback;
+      }
       , onclose: function (callback) {
         self.socket_handlers.onclose = callback
       }
     }
-    return methods
 
-  }).
-  factory('AuthSession', function ($rootScope, $cookieStore, socket) {
-    var modalCallback = function(){};
-    var userSession = $cookieStore.get("BookliSession");
-
-    var login = function(){
-         socket.emit('user:login',
-                     { email: this.user.email });
-    };
-
-    socket.onmessage('user:login:result', function (data) {
-        if(data.status === "success"){
-          $cookieStore.put("BookliSession", data);
-          modalCallback($cookieStore.get("BookliSession"));
-        }
-    });
-
-    var manageLogin = function(callback){
-      modalCallback = callback;
-      console.log(callback);
-      if ($cookieStore.get("BookliSession")){
-        callback($cookieStore.get("BookliSession"));
-      }
-    }
-
-    return {
-        login: login,
-        manageLogin: manageLogin,
-        isLoggedIn: function () {
-            return userSession ? true : false;
-        }
-    };
-
-});
+  });

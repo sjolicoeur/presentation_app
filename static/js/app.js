@@ -9,9 +9,10 @@ var app = angular.module('presentation'
     }
     ).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-    $routeProvider.when("/" + window.roomName + '/home', {templateUrl: '/static/partial/admin.html', controller: AdminCtrl});
-    $routeProvider.when('/admin', {templateUrl: '/static/partial/admin.html', controller: AdminCtrl});
-    $routeProvider.when('/signup', {templateUrl: '/static/partial/signup.html', controller: signUpFormCtrl});
-    $routeProvider.otherwise({redirectTo: "/" + window.roomName + '/home'});
+    $routeProvider.when("/" + window.roomName + '/app/poll', {templateUrl: '/static/partials/admin.html', controller: AdminCtrl});
+    $routeProvider.when("/" + window.roomName + '/app/chat', {templateUrl: '/static/partials/chat.html', controller: ChatCtrl});
+    $routeProvider.when("/" + window.roomName + '/app/room', {templateUrl: '/static/partials/room.html', controller: RoomCtrl});
+    $routeProvider.when("/" + window.roomName + '/app/login', {templateUrl: '/static/partials/login.html', controller: RoomCtrl});
+    $routeProvider.otherwise({redirectTo: "/" + window.roomName + '/app/poll'});
     $locationProvider.html5Mode(true);
   }]);

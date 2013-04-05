@@ -168,9 +168,9 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         cookie = self.get_secure_cookie("username")
         #self.write_message("Welcome back {}!".format(cookie))
         welcom_message = {"type" : "chat" , "message" : "Welcome to room : {}".format(presentation), "username" : "SYSTEM"}
-        #self.set_header("Content-Type", "application/json") 
+        #self.set_header("Content-Type", "application/json")
         self.write_message(json_encode(welcom_message))
-        
+
     def on_close(self):
         # print "closed on "
         ChatSocketHandler.waiters.remove(self)
@@ -195,7 +195,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
                 print "error sending message"
 
     def extract_slug(self, url):
-        import re 
+        import re
         found_slug = re.match(r".+/film/([\w|\-|\_]+)/?$", url)
         if found_slug:
             print found_slug.groups(), " returning :=>", found_slug.group(1)
@@ -209,7 +209,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         url ="http://beta.nfb.ca/api/v2/json/film/get_info/{}/?api_key=beta".format(slug)
         headers = {'content-type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
         r = requests.get(url,  headers=headers)
-        print "getting url : ", url 
+        print "getting url : ", url
         print r
         result_json = r.json()
         title = result_json["data"]["film"]["title"]
@@ -241,8 +241,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
                 ChatSocketHandler.send_updates(message)
         else :
             # message = "--- {0} ---- {0} ---".format(message)
-            # inpect chat message  
-            # choose what to do with it 
+            # inpect chat message
+            # choose what to do with it
             # parsed = tornado.escape.json_decode(message)
             # chat = {
             #     "id": str(uuid.uuid4()),
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         (r"/(\w+)/app/?(\w+)?", AppHandler),
         # (r"/(\w+)/(\w+)?", AppHandler),
         (r"/(\w+)/admin/?", PresentationAdminHandler),
-        (r"/(\w+)/?", AppHandler),
+        #(r"/(\w+)/?", AppHandler),
         (r"/(\w+)/hud",PresentationHUDHandler),
         #(r"/(\w+)/admin/setup"),
         (r"/(\w+)/ws", ChatSocketHandler),

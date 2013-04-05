@@ -1,0 +1,16 @@
+
+<div class="user-login">
+    <button type="button" data-dismiss="modal" aria-hidden="true" class="close">x</button>
+</div>
+
+<form name="loginForm">
+    <h3 class="modal-header">Login</h3>
+    <div class="modal-body">
+        <label class="signup-email">Email:</label>
+        <input name="input" type="email" ng-model="user.email" required="required"/>
+        <br/>
+    </div>
+</form>
+<div class="modal-footer">
+    <button ng-click="login()" type="submit" class="signup-button">Login!</button>
+</div>

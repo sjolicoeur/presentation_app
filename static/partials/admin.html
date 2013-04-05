@@ -1,0 +1,49 @@
+<div id="admin" ng-controller="AdminCtrl">
+  <div class="row">
+    <div class="offset1 span4">
+    <h2> Create Poll </h2>
+      <hr />
+    </div>
+    <div class="offset7 span3">
+    <h2> Messages</h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="offset1 span3">
+      <div class="">
+        <input ng-model="question.question" type="text" id="pres_name" placeholder="Question" />
+        <br />
+        <ul>
+          <li ng-repeat="answer in question.answers">
+            ((answer.aid)). <input type="radio" ng-model="question.answer" name="(( answer.aid ))" group="answer" value="(( answer.aid ))" required>
+            <input type="text" id="pres_name_((answer.aid))" placeholder="(( answer.answer ))" ng-model="answer.answer"/>
+          </li>
+          <button ng-click="addBlankAnswer()">Add Answer</button>
+        </ul>
+        <button ng-click='sendQuestion()'>Create</button>
+      </div>
+    </div>
+
+    <div class="offset4 span2">
+        <div ng-repeat="q in questions">
+        <span ng-click="setCurrentQuestionActive(q.qid)">((q.question))</span>
+        <button ng-click="deleteQuestion(q.qid)">Delete</button>
+        </div>
+      </ul>
+    </div>
+    <div class="offset6 span4" ng-controller="ChatCtrl">
+        <div ng-repeat="m in messageList">
+          <span >((m))</span>
+        </div>
+        <div>
+          <form class="form-inline">
+            <input type="text" class="input-small" placeholder="Message" required>
+            <button type="submit" class="btn" ng-click="sendMessage()">Send</button>
+          </form>
+        </div>
+      </ul>
+    </div>
+  </div>
+</div>
