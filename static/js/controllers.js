@@ -62,6 +62,7 @@ function AdminCtrl($scope, $cookieStore, socket){
     $scope.setCurrentQuestionActive = function(qid){
         $scope.question = $scope.questions[qid];
     }
+
     $scope.deleteQuestion = function(qid){
         delete $scope.questions[qid];
         UpdateQuestionsSession($scope.questions);
@@ -69,7 +70,9 @@ function AdminCtrl($scope, $cookieStore, socket){
     }
 
     $scope.sendQuestion = function() {
-        socket.send(JSON.stringify($scope.addNewQuestion()));
+        var addedPoll = $scope.addNewQuestion();
+        socket.send(JSON.stringify(addedPoll));
+        SendChatMessage(socket, "New Poll has been post " + addedPoll.question, $scope.currentUser)
         createNewQuestion();
     }
 }

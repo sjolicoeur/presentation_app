@@ -1,10 +1,10 @@
 <div id="admin" ng-controller="AdminCtrl">
   <div class="row">
-    <div class="offset1 span4">
+    <div class="offset1 span7">
     <h2> Create Poll </h2>
       <hr />
     </div>
-    <div class="offset7 span3">
+    <div class="offset1 span8">
     <h2> Messages</h2>
       <hr />
     </div>
@@ -26,20 +26,24 @@
       </div>
     </div>
 
-    <div class="offset4 span2">
-        <div ng-repeat="q in questions">
-        <span ng-click="setCurrentQuestionActive(q.qid)">((q.question))</span>
-        <button ng-click="deleteQuestion(q.qid)">Delete</button>
-        </div>
-      </ul>
+    <div class="offset2 span2">
+      <table class="table">
+        <tr ng-repeat="q in questions">
+        <td><span ng-click="setCurrentQuestionActive(q.qid)">((q.question))</span></td>
+        <td><button ng-click="deleteQuestion(q.qid)">Delete</button></td>
+        </tr>
+      </table>
     </div>
-    <div class="offset6 span4" ng-controller="ChatCtrl">
-        <div ng-repeat="m in messageList">
-          <span >((m))</span>
+    <div class="offset1 span8" ng-controller="ChatCtrl">
+        <div id="chat-room" style="height: 260px; border: thin dotted darkgray; overflow-y: scroll;">
+          <div ng-repeat="m in messageList">
+            <span class="offset0 span2">((m.user))</span><span class="offset0  span0">:</span><span class="offset0 span4">((m.message))</span>
+          </div>
         </div>
+        <br />
         <div>
           <form class="form-inline">
-            <input type="text" class="input-small" placeholder="Message" required>
+            <input type="text" class="span7" placeholder="Message" ng-model="message" required>
             <button type="submit" class="btn" ng-click="sendMessage()">Send</button>
           </form>
         </div>

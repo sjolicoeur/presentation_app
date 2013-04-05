@@ -25,15 +25,6 @@ angular.module('presentation.services', ['ngCookies']).
         })
       }
 
-      socket.onmessage = function (data) {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          if (self.socket_handlers.onclose != undefined){
-            self.socket_handlers.onmessage.apply(socket, args)
-          }
-        })
-      }
-
       socket.onclose = function () {
         setTimeout(function () {
           socket = createSocket();
@@ -58,8 +49,14 @@ angular.module('presentation.services', ['ngCookies']).
       onopen: function (callback) {
         self.socket_handlers.onopen = callback
       }
-      , onmessage: function (callback) {
-        self.socket_handlers.onmessage = callback
+      ,on: function (callback) {
+        console.log("zeSicjket:", socket)
+        socket.onmessage = function (event) {
+          var args = arguments;
+          $rootScope.$apply(function () {
+            callback.apply(socket, args);
+          });
+        }
       }
       , send: function (data, callback) {
         console.log("send called", data);
