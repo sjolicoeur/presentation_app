@@ -6,20 +6,26 @@ function AdminCtrl($scope, $cookieStore, socket){
     console.log("in admin ctrl", socket);
 
     var questionsSession = $cookieStore.get("PresentationQuestionsSession");
+    var nextQuestion = 0;
     if (questionsSession !== undefined){
         $scope.questions = questionsSession.questions;
+        for(var elem in $scope.questions){
+            if($scope.questions.hasOwnProperty(elem)){
+                nextQuestion++;
+            }
+        }
+
     } else {
         $scope.questions = {};
     }
 
-    var nextQuestion = 0;
     function UpdateQuestionsSession(data){
         $cookieStore.put("PresentationQuestionsSession", {"questions": data});
     }
 
     $scope.addBlankAnswer = function(){
         console.log('add');
-        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer": null, isDefault: true});
+        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer": null});
     }
 
     function createNewQuestion(){
@@ -42,16 +48,15 @@ function AdminCtrl($scope, $cookieStore, socket){
         return sanitizedAnswers;
     }
 
-
     $scope.addNewQuestion = function(){
-        console.log('addQuestion', $scope.question);
+        console.log('addQuestion', $scope.question, $scope.defaultAnswers);
         var results = sanitize();
         var qid = $scope.question.qid;
         $scope.questions[$scope.question.qid] = {
             "qid": qid
             ,"type": "poll"
             ,"question": $scope.question.question
-            ,"answer": parseInt($scope.question.answer)
+            ,"answer": parseInt($scope.defaultAnswers)
             ,"answers": results};
 
         console.log("hou", $scope.questions);
@@ -62,6 +67,7 @@ function AdminCtrl($scope, $cookieStore, socket){
 
     $scope.setCurrentQuestionActive = function(qid){
         $scope.question = $scope.questions[qid];
+        $scope.defaultAnswers = $scope.question.answer;
     }
 
     $scope.deleteQuestion = function(qid){
