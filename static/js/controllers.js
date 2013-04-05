@@ -63,27 +63,44 @@ function RoomCtrl($scope, socket){
     console.log("in Room ctrl");
 }
 
-function MainCtrl($scope, socket){
+function MainCtrl($scope, $cookieStore, socket){
     console.log("in Main ctrl");
-    $scope.isLoggedIn = false;
-    $scope.currentUser = {};
-    $scope.$on("userLoggedIn", function(event, data){
-        $scope.currentUser.name = data.user.email;
+    var userSession = $cookieStore.get("PresentationSession");
+    if (userSession !== undefined){
         $scope.isLoggedIn = true;
+        console.log("cookie : ", userSession);
+        $scope.currentUser = userSession.email;
+    } else {
+        $scope.isLoggedIn = false;
+        $scope.currentUser = {};
+    }
+
+    $scope.$on("userLoggedIn", function(event, data){
+        $scope.currentUser.email = data.user.email;
+        $scope.isLoggedIn = true;
+    });
+
+     $scope.$on("userLoggedOut", function(event, data){
+        $scope.currentUser= {};
+        $scope.isLoggedIn = false;
     });
 }
 
-function loginCtrl($scope, socket, AuthSession) {
+function loginCtrl($scope, $cookieStore, socket, AuthSession) {
     $scope.user = {}
     $scope.login = function(){
         console.log("loggin in", $scope.user);
+        $cookieStore.put("PresentationSession", $scope.user);
         if ($scope.dismiss !== undefined){
             $scope.dismiss();
         } // dismiss only available when modal is displayed
         $scope.$emit("userLoggedIn", $scope);
     }
+    $scope.logout = function(){
+        console.log("logout!");
+        $cookieStore.remove("PresentationSession");
+        $scope.$emit("userLoggedOut", {});
+    }
     console.log("scope in loginCtrl", $scope);
-
-
     //$scope.login = AuthSession.login;
 }
