@@ -2,10 +2,20 @@
 
 /* Controllers */
 
-function AdminCtrl($scope, socket){
+function AdminCtrl($scope, $cookieStore, socket){
     console.log("in admin ctrl", socket);
-    $scope.questions = {};
+
+    var questionsSession = $cookieStore.get("PresentationQuestionsSession");
+    if (questionsSession !== undefined){
+        $scope.questions = questionsSession.questions;
+    } else {
+        $scope.questions = {};
+    }
+
     var nextQuestion = 0;
+    function UpdateQuestionsSession(data){
+        $cookieStore.put("PresentationQuestionsSession", {"questions": data});
+    }
 
     $scope.addBlankAnswer = function(){
         console.log('add');
@@ -31,17 +41,21 @@ function AdminCtrl($scope, socket){
         return sanitizedAnswers;
     }
 
+
     $scope.addNewQuestion = function(){
-        console.log('addQuestion', $scope.question.answer);
+        console.log('addQuestion', $scope.question);
         var results = sanitize();
         var qid = $scope.question.qid;
-        $scope.questions[$scope.question.qid] = {"qid": qid
-                                  ,"type": "poll"
-                                  ,"question": $scope.question.question
-                                  ,"answer": $scope.question.answer
-                                  ,"answers": results};
+        $scope.questions[$scope.question.qid] = {
+            "qid": qid
+            ,"type": "poll"
+            ,"question": $scope.question.question
+            ,"answer": parseInt($scope.question.answer)
+            ,"answers": results};
+
         console.log("hou", $scope.questions);
         $scope.question = {}
+        UpdateQuestionsSession($scope.questions);
         return $scope.questions[qid];
     }
 
@@ -50,6 +64,7 @@ function AdminCtrl($scope, socket){
     }
     $scope.deleteQuestion = function(qid){
         delete $scope.questions[qid];
+        UpdateQuestionsSession($scope.questions);
         socket.send(JSON.stringify({"type": "poll:delete", "qid": qid}));
     }
 
@@ -68,7 +83,6 @@ function MainCtrl($scope, $cookieStore, socket){
     var userSession = $cookieStore.get("PresentationSession");
     if (userSession !== undefined){
         $scope.isLoggedIn = true;
-        console.log("cookie : ", userSession);
         $scope.currentUser = userSession.email;
     } else {
         $scope.isLoggedIn = false;
@@ -86,7 +100,7 @@ function MainCtrl($scope, $cookieStore, socket){
     });
 }
 
-function loginCtrl($scope, $cookieStore, socket, AuthSession) {
+function loginCtrl($scope, $cookieStore, socket) {
     $scope.user = {}
     $scope.login = function(){
         console.log("loggin in", $scope.user);

@@ -9,8 +9,8 @@ angular.module('presentation.services', ['ngCookies']).
     var roomName = undefined;
     var createSocket = function () {
       var port = (location.port != 8888) ? ':'+location.port : ':8888'
-      //var server = 'ws://192.168.167.68' + port + '/' + window.roomName + '/ws';
-      var server = 'ws://' + document.domain + port + '/' + window.roomName + '/ws';
+      var server = 'ws://192.168.167.147' + port + '/' + window.roomName + '/ws';
+      //var server = 'ws://' + document.domain + port + '/' + window.roomName + '/ws';
       console.log("server : ", server);
       return new WebSocket(server);
     }
@@ -52,8 +52,6 @@ angular.module('presentation.services', ['ngCookies']).
       return socket
     }
 
-
-
     self.socket_handlers = {}
 
     return {
@@ -74,37 +72,4 @@ angular.module('presentation.services', ['ngCookies']).
       }
     }
 
-  }).
-  factory('AuthSession', function ($rootScope, $cookieStore, socket) {
-    var modalCallback = function(){};
-    var userSession = $cookieStore.get("BookliSession");
-
-    var login = function(){
-         socket.emit('user:login',
-                     { email: this.user.email });
-    };
-
-    socket.onmessage('user:login:result', function (data) {
-        if(data.status === "success"){
-          $cookieStore.put("BookliSession", data);
-          modalCallback($cookieStore.get("BookliSession"));
-        }
-    });
-
-    var manageLogin = function(callback){
-      modalCallback = callback;
-      console.log(callback);
-      if ($cookieStore.get("BookliSession")){
-        callback($cookieStore.get("BookliSession"));
-      }
-    }
-
-    return {
-        login: login,
-        manageLogin: manageLogin,
-        isLoggedIn: function () {
-            return userSession ? true : false;
-        }
-    };
-
-});
+  });
