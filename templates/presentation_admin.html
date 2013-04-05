@@ -8,7 +8,11 @@ function newMessage() {
     updater.socket.send(JSON.stringify(message));
     //form.find("input[type=text]").val("").select();
 }
-
+function update_chat(from, msg) {
+    
+    $("#inbox").append("<br>");
+    $("#inbox").append("<b>user &lt;" + from +"&gt; said : </b>" + msg);
+}
 var updater = {
     socket: null,
 
@@ -27,9 +31,12 @@ var updater = {
 
     showMessage: function(message) {
         console.log(message);
-        $("#inbox").append("<br>");
-        $("#inbox").append(message);
-
+        var json_message =  JSON.parse(message)
+        $("#inbox_raw").append("<br>");
+        $("#inbox_raw").append(message);
+        if (json_message['type'] === "chat" && json_message['to'] !== "hud" ) {
+            update_chat(json_message['username'], json_message['message'])
+        }
         // var existing = $("#m" + message.id);
         // if (existing.length > 0) return;
         // var node = $(message.html);
@@ -43,26 +50,39 @@ updater.start();
 </script>
   <div class="row">
     <div class="twelve columns">
-      <h2>Welcome to my mini presentation app</h2>
+      <h2>Admin - Manual</h2>
       <hr />
     </div>
   </div>
 
   <div class="row">
     <div class="twelve columns">
-      <h3>The Checkin</h3>
 
       <!-- Grid Example -->
  
-      <div class="row presentation">
-        
-        <h2>Checked in ? "ws://{{ host }}/{{ slug }}/ws" </h2>
-      </div>
 
-      <div id="inbox">
-        [---------]
-      </div>
-      <hr>
+      <dl class="tabs">
+  <dd class="active"><a href="#simple1">Messages</a></dd>
+  <dd><a href="#simple2">Raw</a></dd>
+  <dd class="hide-for-small"><a href="#simple3">important urls</a></dd>
+</dl>
+<ul class="tabs-content">
+  <li class="active" id="simple1Tab">
+    <div id="inbox">
+      </div></li>
+  <li id="simple2Tab">
+    <div id="inbox_raw">
+      </div></li>
+  <li id="simple3Tab"> 
+    <ul>
+      <li>>> room : <a href="http://{{ host }}/{{ slug }}"> "http://{{ host }}/{{ slug }}" </a></li>
+      <li>>> HUD : <a href="http://{{ host }}/{{ slug }}/hud">"http://{{ host }}/{{ slug }}/hud"</a></li>
+      <li>>> websocket : "ws://{{ host }}/{{ slug }}/ws"</li>
+
+    </ul>
+
+  </li>
+</ul>
     </div>
     <div class="row">
         <!-- div class="seven columns offset-by-five">
@@ -108,8 +128,22 @@ updater.start();
                     <p><a href="#" onclick="send_films();return false;" class="small button">Send film</a></p>
                 </div>
             </div>
+            
             </form>
         </div>
+        <div class="seven columns offset-by-five">
+            <div class="row">
+                <div class="three columns">
+
+                    <p><a href="#" onclick="pause_film();return false;" class="small button">Pause film</a></p> 
+                    </div>
+                <div class="three columns">
+                    <p><a href="#" onclick="play_film();return false;" class="small button">Play film</a></p>
+                </div>
+                
+            </div>
+        </div>
+
         <div class="seven columns offset-by-five">
           <form id="img_send">
             <div class="row">
@@ -124,16 +158,14 @@ updater.start();
             </form>
         </div>
         <div class="seven columns offset-by-five">
-          <form id="polls">
+          <form id="hud_chat_msg">
             <div class="row">
-                <div class="five columns">
-                    <input type="text" name="pres_name" class="twelve" id="pres_name" placeholder="Presentation name"/>
-                </div>
-                <div class="four columns">
-                    <input type="password" name="pres_pass" class="twelve"  id="pres_pass" placeholder="password" />
+                
+                <div class="six columns">
+                    <input type="text" name="hud_msg" class="twelve"  id="hud_msg" placeholder="your message" />
                 </div>
                 <div class="three columns">
-                    <p><a href="#" onclick="newMessage();return false;" class="small button">Create</a></p>
+                    <p><a href="#" onclick="send_hud_chat_message();return false;" class="small button">Send</a></p>
                 </div>
             </div>
             </form>
@@ -147,6 +179,14 @@ updater.start();
 function send_chat_message() {
   if ($('#username').val() != "") {
         var info = { type : "chat", username: $("#username").val(), message : $("#msg").val() };
+        // updater.socket.send(JSON.stringify(message));
+        updater.socket.send(JSON.stringify(info));
+    }
+    // return false
+}
+function send_hud_chat_message() {
+  if ($('#username').val() != "") {
+        var info = { type : "chat", username: $("#username").val(), message : $("#hud_msg").val(), to : "hud" };
         // updater.socket.send(JSON.stringify(message));
         updater.socket.send(JSON.stringify(info));
     }
@@ -171,6 +211,18 @@ function send_image() {
         // updater.socket.send(JSON.stringify(message));
         updater.socket.send(JSON.stringify(info));
     }
+}
+
+function pause_film() {
+        var info =  {type:"film_action", "action" : "pause" };
+        updater.socket.send(JSON.stringify(info));
+    
+}
+
+function play_film() {
+        var info =  {type:"film_action", "action" : "play" };
+        updater.socket.send(JSON.stringify(info));
+    
 }
 
 function answer_poll() {} 
