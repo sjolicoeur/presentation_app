@@ -1,0 +1,33 @@
+<div id="admin" ng-controller="AdminCtrl">
+  <div class="row">
+    <div class="offset1 span7">
+    <h2> Film </h2>
+      <hr />
+    </div>
+    <div class="offset1 span7">
+    <h2> Messages</h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="offset1 span7" ng-controller="ChatCtrl">
+
+    </div>
+    <div class="offset1 span7" ng-controller="ChatCtrl">
+        <div id="chat-room" style="height: 260px; border: thin dotted darkgray; overflow-y: scroll;">
+          <div ng-repeat="m in messageList">
+            <span class="offset0 span2">((m.user))</span><span class="offset0  span0">:</span><span class="offset0 span4">((m.message))</span>
+          </div>
+        </div>
+        <br />
+        <div>
+          <form class="form-inline">
+            <input type="text" class="span7" placeholder="Message" ng-model="message">
+            <button type="submit" class="btn" ng-click="sendMessage()">Send</button>
+          </form>
+        </div>
+      </ul>
+    </div>
+  </div>
+</div>
