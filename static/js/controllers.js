@@ -36,35 +36,30 @@ function AdminCtrl($scope, $cookieStore, socket){
     }
     createNewQuestion();
 
-    function sanitize(){
+    function sanitize(answers){
         var sanitizedAnswers = [];
-        $scope.question.answers.forEach(function(v){
+        answers.forEach(function(v){
             console.log("sanitize ... ", v);
             if (v.answer !== "Answer" && v.answer !== undefined && v.answer !== null && v.answer !== "") {
-                console.log("sanitize value ... ", v.answer);
                 sanitizedAnswers.push(v);
             }
         });
-        console.log("sanitezed : ", sanitizedAnswers);
         return sanitizedAnswers;
     }
 
-    $scope.addNewQuestion = function(){
-        console.log('addQuestion', $scope.question, $scope.defaultAnswers);
-        var results = sanitize();
-        console.log('results : ', results.length)
-        var qid = $scope.question.qid;
-        if($scope.question.question === "" || $scope.question.question == undefined || results.length === 0){
+    $scope.addNewPoll = function(zeQuestion){
+        var results = sanitize(zeQuestion.answers);
+        var qid = zeQuestion.qid;
+        if(zeQuestion.question === "" ||zeQuestion.question == undefined || results.length === 0){
             return undefined;
         }
-        $scope.questions[$scope.question.qid] = {
+        $scope.questions[zeQuestion.qid] = {
             "qid": qid
             ,"type": "poll"
-            ,"question": $scope.question.question
+            ,"question": zeQuestion.question
             ,"answer": parseInt($scope.defaultAnswers)
             ,"answers": results};
 
-        console.log("hou", $scope.questions);
         $scope.question = {}
         UpdateQuestionsSession($scope.questions);
         return $scope.questions[qid];
@@ -82,14 +77,20 @@ function AdminCtrl($scope, $cookieStore, socket){
     }
 
     $scope.sendQuestion = function() {
-        var addedPoll = $scope.addNewQuestion();
+        var addedPoll = $scope.addNewPoll($scope.question);
         if (addedPoll !== undefined){
             socket.send(JSON.stringify(addedPoll));
             SendChatMessage(socket, "New Poll has been post " + addedPoll.question, $scope.currentUser)
             createNewQuestion();
         }
-
     }
+
+    socket.on(function(event){
+        console.log("got socket", event);
+        if (message.type === "poll"){
+            addNewPoll(event.data);
+        }
+    });
 }
 
 function RoomCtrl($scope, socket){

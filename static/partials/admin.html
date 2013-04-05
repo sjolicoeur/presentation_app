@@ -11,22 +11,18 @@
   </div>
 
   <div class="row">
-    <div class="offset1 span2">
-      <div class="">
-        <form>
-        <input ng-model="question.question" type="text" id="pres_name" placeholder="Question" />
+    <div class="offset1 span3">
+      <form class="span4">
+        <input class="span3" ng-model="question.question" type="text" id="pres_name" placeholder="Question" />
         <br />
-
-        <ul>
-          <li ng-repeat="answer in question.answers">
-            ((answer.aid)). <input type="radio" ng-model="$parent.defaultAnswers" group="answer" value="(( answer.aid ))">
-            <input type="text" id="pres_name_((answer.aid))" placeholder="Answer" ng-model="answer.answer"/>
-          </li>
+        <div class="span4" ng-repeat="answer in question.answers">
+          ((answer.aid)). <input type="radio" ng-model="$parent.defaultAnswers" group="answer" value="(( answer.aid ))" class="input-small">
+          <input type="text" class="input-large " id="pres_name_((answer.aid))" placeholder="Answer" ng-model="answer.answer"/>
+        </div>
           <button ng-click="addBlankAnswer()">Add Answer</button>
-        </ul>
-        <button ng-click='sendQuestion()'>Create</button>
-        </form>
-      </div>
+          <br />
+          <button ng-click='sendQuestion()'>Create</button>
+      </form>
     </div>
 
     <div class="offset2 span3">

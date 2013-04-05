@@ -6,17 +6,19 @@
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
-        <div class="brand btn-group">
-          <button class="brand btn" target="_self" href="/{{roomname}}/">{{roomname}}</button>
-          <button class="btn dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            <li></li>
-            <li><a tabindex="-1" target="_self" href="/">home</a></li>
-            <li><a tabindex="-1" target="_self" href="/{{roomname}}/hub">Hub</a></li>
+          <ul class="nav nav-pills">
+            <li class="dropdown">
+              <a class="brand  dropdown-toggle" data-toggle="dropdown" href="#">
+                {{roomname}}
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a tabindex="-1" target="_self" href="/{{roomname}}">{{roomname}}</a></li>
+                <li><a tabindex="-1" target="_self" href="/">home</a></li>
+                <li><a tabindex="-1" target="_self" href="/{{roomname}}/hub">Hub</a></li>
+              </ul>
+            </li>
           </ul>
-        </div>
 
         <ul class="nav nav-collapse collapse">
 
