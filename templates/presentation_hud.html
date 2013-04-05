@@ -9,6 +9,53 @@ function newMessage() {
     //form.find("input[type=text]").val("").select();
 }
 
+function update_chat(from, msg) {
+    
+    $("#inbox").append("<br>");
+    $("#inbox").append("<b>user &lt;" + from +"&gt; said : </b>" + msg);
+}
+
+function init_film_start(filmID, start) {
+    var mainVideo=document.getElementById(filmID); 
+    /// seek to ... 
+    mainVideo.currentTime = start;
+    mainVideo.play();
+}
+
+function film_play() {
+  var filmID = "main_video";
+  var mainVideo=document.getElementById(filmID); 
+  mainVideo.play();
+
+}
+
+function film_pause() {
+  var filmID = "main_video";
+  var mainVideo=document.getElementById(filmID); 
+  mainVideo.pause();
+
+}
+
+function update_film(json_msg) { 
+  // #media_holder
+  var data_title = "<h4>"+ json_msg['title']+"</h4>";
+  var data_director = "<p>"+ json_msg['director']+"</p>" ; 
+  var data =  "<video id='main_video' controls oncanplay='init_film_start(\"main_video\", "+ json_msg['start'] +");'><source src='" + json_msg['url']+ "' type='video/mp4'></video>"+
+        "<p>" + json_msg['description'] + "</p>" ; 
+   $("#media_holder").html( data_title + data_director + data );
+  console.log (data);
+  console.log("updated");
+
+
+}
+function update_image(json_msg) {
+    $("#media_holder").html("<img style='height:450px' src='"+ json_msg['url'] +"' />");
+
+}
+// function display_poll(json_msg){
+
+
+// }
 var updater = {
     socket: null,
 
@@ -27,16 +74,37 @@ var updater = {
 
     showMessage: function(message) {
         // this is the HUD so only show chat messages destined for the HUD
+        var json_message =  JSON.parse(message)
         console.log(message);
-        $("#inbox").append("<br>");
-        $("#inbox").append(message);
+        ///
+        // console.log("message of type " + json_message['type'])
+        if (json_message['type'] === "chat" && json_message['to'] === "hud" ) {
+            update_chat(json_message['username'], json_message['message'])
+        }
+        if (json_message['type'] === "film"  ) {
+            update_film(json_message)
+        }
+        if (json_message['type'] === "poll" ) {
+            display_poll(json_message)
+        }
+        if (json_message['type'] === "image" ) {
+            update_image(json_message)
+        }
+        if (json_message['type'] === "film_action" && json_message['action'] === "play" ) {
+            film_play(json_message)
+        }
+        if (json_message['type'] === "film_action" && json_message['action'] === "pause" ) {
+            film_pause(json_message)
+        }
+        /// type answer  compilation 
 
-        var existing = $("#m" + message.id);
-        if (existing.length > 0) return;
-        var node = $(message.html);
-        node.hide();
-        $("#inbox").append(node);
-        node.slideDown();
+        ///
+        // var existing = $("#m" + message.id);
+        // if (existing.length > 0) return;
+        // var node = $(message.html);
+        // node.hide();
+        // $("#inbox").append(node);
+        // node.slideDown();
     }
 };
 
@@ -44,95 +112,46 @@ updater.start();
 </script>
   <div class="row">
     <div class="twelve columns">
-      <h2>Welcome to my mini presentation app</h2>
-      <hr />
+      <h2>HUD for : {{ presentation['name'] }}</h2>
     </div>
   </div>
 
   <div class="row">
     <div class="twelve columns">
-      <h3>The Checkin</h3>
+      <div class="row">
+          <div class="seven columns">
+
+            <div id="media_holder"></div>
+          </div>
+          <div class="five columns" style="background-color:red;">
+            <h4>Poll Question : </h4>
+
+          </div>
+      </div>
+            <hr>
+
+      <div class="row">
+        <div class="twelve columns">
+          <h3>system messages</h3>
+          <div id="inbox">
+            
+          </div>
+        </div>
+      </div>
+
+
+
 
       <!-- Grid Example -->
  
       <div class="row presentation">
         
-        <h2>Checked in ? "ws://{{ host }}/{{ slug }}/ws" </h2>
+
       </div>
 
-      <div id="inbox">
-        [---------]
-      </div>
-      <hr>
+      
     </div>
-    <div class="row">
-        <!-- div class="seven columns offset-by-five">
-          <form id="test">
-            <div class="row">
-                <div class="five columns">
-                    <input type="text" name="pres_name" class="twelve" id="pres_name" placeholder="Presentation name"/>
-                </div>
-                <div class="four columns">
-                    <input type="password" name="pres_pass" class="twelve"  id="pres_pass" placeholder="password" />
-                </div>
-                <div class="three columns">
-                    <p><a href="#" onclick="newMessage();return false;" class="small button">Create</a></p>
-                </div>
-            </div>
-            </form>
-        </div -->
-        <div class="seven columns offset-by-five">
-          <form id="chat_msg">
-            <div class="row">
-                <div class="three columns">
-                    <input type="text" name="username" class="twelve" id="username" placeholder="Presentation name"/>
-                </div>
-                <div class="six columns">
-                    <input type="text" name="msg" class="twelve"  id="msg" placeholder="your message" />
-                </div>
-                <div class="three columns">
-                    <p><a href="#" onclick="send_chat_message();return false;" class="small button">Send</a></p>
-                </div>
-            </div>
-            </form>
-        </div>
-        <div class="seven columns offset-by-five">
-          <form id="polls">
-            <div class="row">
-                <div class="five columns">
-                    <input type="text" name="pres_name" class="twelve" id="pres_name" placeholder="Presentation name"/>
-                </div>
-                <div class="four columns">
-                    <input type="password" name="pres_pass" class="twelve"  id="pres_pass" placeholder="password" />
-                </div>
-                <div class="three columns">
-                    <p><a href="#" onclick="newMessage();return false;" class="small button">Create</a></p>
-                </div>
-            </div>
-            </form>
-        </div>
-<script>
-
-function send_chat_message() {
-  if ($('#username').val() != "") {
-        var info = { type : "chat", username: $("#username").val(), message : $("#msg").val() };
-        // updater.socket.send(JSON.stringify(message));
-        updater.socket.send(JSON.stringify(info));
-    }
-    // return false
-}
-function answer_poll() {} 
-function create_presentation() {
-    //alert("clicked")
-    if ($('#pres_name').val() != "") {
-        var info = { name: $("#pres_name").val(), password: $("#pres_pass").val() };
-        $.post('/', info, function(data) {
-          $('.presentation').prepend(data);
-        }).fail(function() { alert("error"); });
-    }
-}
-</script>
-    </div>
+ 
 
 
   </div>

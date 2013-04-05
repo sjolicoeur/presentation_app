@@ -52,7 +52,7 @@ class MainHandler(tornado.web.RequestHandler):
             self.write(json_encode(rooms))
         else :
 
-            self.render("home.html", listing=listing, rooms=rooms)
+            self.render("home.html", listing=listing, rooms=rooms, presentation=False)
 
     def post(self):
         # put this in the pre
@@ -82,6 +82,7 @@ class PresentationHandler(tornado.web.RequestHandler):
         presentation = r.get(name)
         # print "name : ", name, "presentation : ", presentation
         if presentation :
+            presentation = ast.literal_eval(presentation)
             self.render("presentation.html", host=self.request.host, slug=name, presentation=presentation)
         else :
            raise tornado.web.HTTPError(404)
@@ -96,6 +97,7 @@ class PresentationHUDHandler(tornado.web.RequestHandler):
         presentation = r.get(name)
         # print "name : ", name, "presentation : ", presentation
         if presentation :
+            presentation = ast.literal_eval(presentation)
             self.render("presentation_HUD.html", host=self.request.host, slug=name, presentation=presentation)
         else :
            raise tornado.web.HTTPError(404)

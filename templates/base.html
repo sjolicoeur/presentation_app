@@ -31,6 +31,58 @@
 
 </head>
 <body>
+<nav class="top-bar">
+  <ul class="title-area">
+    <!-- Title Area -->
+    <li class="name">
+      <h1><a href="/">The greater good app </a></h1>
+    </li>
+    <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+    <!-- <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li> -->
+  </ul>
+
+  <section class="top-bar-section">
+    <!-- Left Nav Section -->
+    <ul class="left">
+      <li class="divider"></li>
+ 
+     <!--  <li><a href="#">Main Item 2</a></li>
+      <li class="divider"></li> -->
+ 
+    </ul>
+
+    <!-- Right Nav Section -->
+    {% if presentation %}
+    <ul class="right">
+      <li class="divider hide-for-small"></li>
+      <li class="has-dropdown"><a href="#">Admin</a>
+
+        <ul class="dropdown">
+          <li class="active"><a href="/{{ slug }}/hud">HUD view</a></li>
+      <li class="divider"></li>
+      <li class="active"><a href="/{{ slug }}/">Student View</a></li>
+          <li class="divider"></li>
+
+          <li></li>
+          <li><label>Angular - Admin</label></li>
+          <li><a href="/{{ slug }}/app" class="">Admin</a></li>
+
+            
+          <li class="divider"></li>
+          <li><label>Manual - Admin</label></li>
+          <li><a href="/{{ slug }}/admin">Admin</a></li>
+          <li class="divider"></li>
+          <li><a href="#" onclick="updater.start(); alert('reconnecting');return false;">reconnect</a></li>
+          
+        </ul>
+      </li>
+  
+  
+    </ul>
+    {% end if %}
+  </section>
+</nav>
+
 {% block content %}
   <div class="row">
     <div class="twelve columns">
