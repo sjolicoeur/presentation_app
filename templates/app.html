@@ -7,7 +7,6 @@
     <div class="navbar-inner">
       <div class="container">
         <a class="brand" href="/{{roomname}}/">{{roomname}}</a>
-
         <ul class="nav nav-collapse collapse">
           <li ng-show="isLoggedIn">
             <img id="gravatarMenu" ng-src="http://www.gravatar.com/avatar/((currentUser.gravatarHash))">
@@ -16,21 +15,26 @@
             <a href="#"> (( currentUser.name ))</a>
           </li>
           <li>
-            <a href="/{{roomname}}/admin">Admin</a>
+            <a bs-modal="'/static/partials/login.html'" ng-controller="loginCtrl">Login</a>
+          </li>
+          <li>
+            <a href="/{{roomname}}/app/poll">Poll</a>
           </li>
           <li class="divider"></li>
           <li>
-            <a href="/{{roomname}}/dashboard">Dashboard</a>
+            <a href="/{{roomname}}/app/dashboard">Dashboard</a>
           </li>
           <li>
-            <!-- <a href="#" bs-modal="'/partials/login'" ng-controller="loginCtrl">Login</a> -->
+            <a href="/{{roomname}}/app/room">Room</a>
           </li>
         </ul>
       </div>
     </div>
   </div>
 
+  <div ng-show="isLoggedIn">
   <div id="ng-view" ng-view></div>
+  </div>
 </div>
 {% end block %}
 

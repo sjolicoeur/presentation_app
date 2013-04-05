@@ -9,7 +9,7 @@ function AdminCtrl($scope, socket){
 
     $scope.addBlankAnswer = function(){
         console.log('add');
-        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer":"Answer", "isCorrect": false});
+        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer":"Answer"});
     }
 
     function createNewQuestion(){
@@ -34,14 +34,15 @@ function AdminCtrl($scope, socket){
     $scope.addNewQuestion = function(){
         console.log('addQuestion', $scope.question.answer);
         var results = sanitize();
-        $scope.questions[$scope.question.qid] = {"qid": $scope.question.qid
+        var qid = $scope.question.qid;
+        $scope.questions[$scope.question.qid] = {"qid": qid
                                   ,"type": "poll"
                                   ,"question": $scope.question.question
                                   ,"answer": $scope.question.answer
                                   ,"answers": results};
         console.log("hou", $scope.questions);
         $scope.question = {}
-        return $scope.questions[$scope.questions.length-1];
+        return $scope.questions[qid];
     }
 
     $scope.setCurrentQuestionActive = function(qid){
@@ -58,32 +59,31 @@ function AdminCtrl($scope, socket){
     }
 }
 
-function MainCtrl($scope, socket){
-    console.log("in Main ctrl");
+function RoomCtrl($scope, socket){
+    console.log("in Room ctrl");
 }
 
-// DashboardCtrl.$inject = [];
-function signUpFormCtrl($scope, socket) {
-    $scope.submit = function(){
-        socket.emit('user:new'
-                    , { email: this.email
-                        ,username: this.username });
-    };
-
-    socket.onmessage('user:new:result', function (data) {
-        $scope.newUser = data;
-        $scope.$emit("userLoggedIn", data);
+function MainCtrl($scope, socket){
+    console.log("in Main ctrl");
+    $scope.isLoggedIn = false;
+    $scope.currentUser = {};
+    $scope.$on("userLoggedIn", function(event, data){
+        $scope.currentUser.name = data.user.email;
+        $scope.isLoggedIn = true;
     });
 }
 
 function loginCtrl($scope, socket, AuthSession) {
-    AuthSession.manageLogin(function(data){
-        console.log("scope in loginCtrl", $scope);
+    $scope.user = {}
+    $scope.login = function(){
+        console.log("loggin in", $scope.user);
         if ($scope.dismiss !== undefined){
             $scope.dismiss();
         } // dismiss only available when modal is displayed
-        $scope.$emit("userLoggedIn", data);
-    });
+        $scope.$emit("userLoggedIn", $scope);
+    }
+    console.log("scope in loginCtrl", $scope);
 
-    $scope.login = AuthSession.login;
+
+    //$scope.login = AuthSession.login;
 }
