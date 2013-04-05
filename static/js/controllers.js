@@ -19,13 +19,14 @@ function AdminCtrl($scope, $cookieStore, socket){
 
     $scope.addBlankAnswer = function(){
         console.log('add');
-        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer":"Answer"});
+        $scope.question.answers.push({"aid": $scope.question.answers.length+1, "answer": null, isDefault: true});
     }
 
     function createNewQuestion(){
         nextQuestion += 1;
         $scope.question = { question: "", answer: undefined, qid: nextQuestion, answers:[] };
         $scope.addBlankAnswer();
+        $scope.defaultAnswers = $scope.question.answers[0].aid;
     }
     createNewQuestion();
 
