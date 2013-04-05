@@ -6,7 +6,18 @@
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
-        <a class="brand" href="/{{roomname}}/">{{roomname}}</a>
+        <div class="brand btn-group">
+          <button class="brand btn" target="_self" href="/{{roomname}}/">{{roomname}}</button>
+          <button class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li></li>
+            <li><a tabindex="-1" target="_self" href="/">home</a></li>
+            <li><a tabindex="-1" target="_self" href="/{{roomname}}/hub">Hub</a></li>
+          </ul>
+        </div>
+
         <ul class="nav nav-collapse collapse">
 
           <li ng-show="isLoggedIn">
@@ -26,7 +37,7 @@
           </li>
           <li class="divider"></li>
           <li>
-            <a href="/{{roomname}}/app/dashboard">Dashboard</a>
+            <a target="_self"  href="/{{roomname}}/">Dashboard</a>
           </li>
           <li>
             <a href="/{{roomname}}/app/room">Room</a>

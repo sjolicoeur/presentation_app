@@ -40,7 +40,8 @@ function AdminCtrl($scope, $cookieStore, socket){
         var sanitizedAnswers = [];
         $scope.question.answers.forEach(function(v){
             console.log("sanitize ... ", v);
-            if (v.answer !== "Answer") {
+            if (v.answer !== "Answer" && v.answer !== undefined && v.answer !== null && v.answer !== "") {
+                console.log("sanitize value ... ", v.answer);
                 sanitizedAnswers.push(v);
             }
         });
@@ -51,7 +52,11 @@ function AdminCtrl($scope, $cookieStore, socket){
     $scope.addNewQuestion = function(){
         console.log('addQuestion', $scope.question, $scope.defaultAnswers);
         var results = sanitize();
+        console.log('results : ', results.length)
         var qid = $scope.question.qid;
+        if($scope.question.question === "" || $scope.question.question == undefined || results.length === 0){
+            return undefined;
+        }
         $scope.questions[$scope.question.qid] = {
             "qid": qid
             ,"type": "poll"
@@ -78,9 +83,12 @@ function AdminCtrl($scope, $cookieStore, socket){
 
     $scope.sendQuestion = function() {
         var addedPoll = $scope.addNewQuestion();
-        socket.send(JSON.stringify(addedPoll));
-        SendChatMessage(socket, "New Poll has been post " + addedPoll.question, $scope.currentUser)
-        createNewQuestion();
+        if (addedPoll !== undefined){
+            socket.send(JSON.stringify(addedPoll));
+            SendChatMessage(socket, "New Poll has been post " + addedPoll.question, $scope.currentUser)
+            createNewQuestion();
+        }
+
     }
 }
 
