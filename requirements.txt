@@ -22,5 +22,5 @@ riak-pb==1.2.1
 tornado==3.0
 tornado-subprocess==0.1.4
 tornadotools==0.2.1
-urllib3==1.5
+urllib3==1.26.5
 wsgiref==0.1.2
